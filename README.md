@@ -2,13 +2,13 @@
  the DESTROYERS
 
 
-Game Name: Super Battlegrounds
-Game Description: 
+#Game Name: Super Battlegrounds
+#Game Description: 
 This is a superhero fighting game with physics. There is a destructible environment and civilians that can be destroyed for points.
 Players can punch, kick, and fly and battle each other in the city environment using their unique abilities.
 Potentially we add VR support
-Group Organization:
-Josh: Team Leader / Game Designer
+#Group Organization:
+#Josh: Team Leader / Game Designer
 
 Helped guide the overall direction of the project
 Organized team meetings and made sure everyone knew their tasks
