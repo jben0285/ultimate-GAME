@@ -14,7 +14,7 @@ Players will be able to punch, kick, fly, and battle each other in a dynamic cit
 - Will lead game design choices including core mechanics, level flow, enemy behavior, and difficulty.
 - Will ensure the team stays connected and works through challenges together.
 
-### Cristian - QA Lead / Level & Boss Designer
+### Cristian - Level & Boss Designer
 - Will design the wave structure and pacing of enemy spawns.
 - Will create the boss encounter with superpower mechanics (e.g., knockback, HP scaling).
 - Will focus on game balancing and the progression of enemy difficulty.
