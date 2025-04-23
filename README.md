@@ -1,39 +1,38 @@
 # Super Battlegrounds
 
 ## Game Description
-This is a superhero fighting game with physics. There is a destructible environment and civilians that can be destroyed for points.  
-Players can punch, kick, and fly, battling each other in a dynamic city environment using unique abilities.  
-*Potentially, we may add VR support in the future.*
+This will be a superhero fighting game with physics. There will be a destructible environment and civilians that can be destroyed for points.  
+Players will be able to punch, kick, fly, and battle each other in a dynamic city environment using their unique abilities.  
+*Potentially, we will add VR support in the future.*
 
 ## Group Organization
 
 ### Josh - Team Leader / Game Designer
-- Helped guide the overall direction of the project.
-- Organized team meetings and ensured all team members knew their tasks.
-- Kept track of deadlines and made sure milestones were met.
-- Led game design choices including core mechanics, level flow, enemy behavior, and difficulty.
-- Ensured the team stayed connected and worked through challenges together.
+- Will guide the overall direction of the project.
+- Will organize team meetings and ensure all team members understand their tasks.
+- Will track deadlines and ensure milestones are met.
+- Will lead game design choices including core mechanics, level flow, enemy behavior, and difficulty.
+- Will ensure the team stays connected and works through challenges together.
 
 ### Cristian - QA Lead / Level & Boss Designer
-- Designed the wave structure and pacing of enemy spawns.
-- Created the boss encounter with superpower mechanics (e.g., knockback, HP scaling).
-- Focused on game balancing and progression of enemy difficulty.
-- Led testing efforts by identifying bugs, exploits, and areas needing polish.
+- Will design the wave structure and pacing of enemy spawns.
+- Will create the boss encounter with superpower mechanics (e.g., knockback, HP scaling).
+- Will focus on game balancing and the progression of enemy difficulty.
+- Will lead testing efforts by identifying bugs, exploits, and areas needing polish.
 
 ### Reinier - Art & Visual Design
-- Designed and created character sprites, environments, UI elements, and animations.
-- Ensured a consistent visual style across the game.
-- Implemented particle effects (e.g., for superpowers, knockback, and hits).
-- Made sure animations and visuals integrate well with gameplay.
+- Will design and create character sprites, environments, UI elements, and animations.
+- Will ensure a consistent visual style across the game.
+- Will implement particle effects (e.g., for superpowers, knockback, and hits).
+- Will make sure that animations and visuals integrate well with gameplay.
 
 ### Emilio - Lead Programmer
-- Implemented player controls, combat systems, enemy AI, and wave mechanics.
-- Managed core gameplay logic, including attack timing, health systems, and hitboxes.
-- Collaborated with Josh to translate game design ideas into code.
-- Assisted with debugging, performance optimization, and version control (e.g., using GitHub).
+- Will implement player controls, combat systems, enemy AI, and wave mechanics.
+- Will manage core gameplay logic, including attack timing, health systems, and hitboxes.
+- Will help with debugging, performance optimization, and version control (e.g., using GitHub).
 
-### Ryan - Sound & Visual Feedback
-- Designed and sourced sound effects for attacks, waves, damage, and the boss battle.
-- Added music suited for different game phases (intro, wave progression, boss fight).
-- Assisted in creating visual and audio cues (e.g., screen shakes, knockback effects) for better feedback.
-- Tested gameplay to ensure every action had a satisfying impact.
+### Ryan - Lead Programmer
+- Will design and source sound effects for attacks, waves, damage, and the boss battle.
+- Will add music that fits different game phases (intro, wave progression, boss fight).
+- Will assist in creating visual and audio cues (e.g., screen shakes, knockback effects) for better feedback.
+- Will test gameplay to ensure every action has a satisfying impact.
