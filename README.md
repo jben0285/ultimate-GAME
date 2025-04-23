@@ -1,44 +1,39 @@
-# Ultimate-GAME
- the DESTROYERS
+# Super Battlegrounds
 
+## Game Description
+This is a superhero fighting game with physics. There is a destructible environment and civilians that can be destroyed for points.  
+Players can punch, kick, and fly, battling each other in a dynamic city environment using unique abilities.  
+*Potentially, we may add VR support in the future.*
 
-#Game Name: Super Battlegrounds
-#Game Description: 
-This is a superhero fighting game with physics. There is a destructible environment and civilians that can be destroyed for points.
-Players can punch, kick, and fly and battle each other in the city environment using their unique abilities.
-Potentially we add VR support
-#Group Organization:
-#Josh: Team Leader / Game Designer
+## Group Organization
 
-Helped guide the overall direction of the project
-Organized team meetings and made sure everyone knew their tasks
-Kept track of deadlines and made sure we hit our milestones
-Took the lead on game design choices like core mechanics, level flow, enemy behavior, and difficulty
-Made sure the team stayed connected and worked through any problems together
+### Josh - Team Leader / Game Designer
+- Helped guide the overall direction of the project.
+- Organized team meetings and ensured all team members knew their tasks.
+- Kept track of deadlines and made sure milestones were met.
+- Led game design choices including core mechanics, level flow, enemy behavior, and difficulty.
+- Ensured the team stayed connected and worked through challenges together.
 
-Cristian: QA Lead / Level & Boss Designer
-Designs the wave structure and pacing of enemy spawns
-Creates the boss encounter, including its superpower mechanics (e.g., knockback, HP scaling)
-Focuses on game balancing and enemy difficulty progression
-Leads testing efforts, identifying bugs, exploits, and areas needing polish
+### Cristian - QA Lead / Level & Boss Designer
+- Designed the wave structure and pacing of enemy spawns.
+- Created the boss encounter with superpower mechanics (e.g., knockback, HP scaling).
+- Focused on game balancing and progression of enemy difficulty.
+- Led testing efforts by identifying bugs, exploits, and areas needing polish.
 
+### Reinier - Art & Visual Design
+- Designed and created character sprites, environments, UI elements, and animations.
+- Ensured a consistent visual style across the game.
+- Implemented particle effects (e.g., for superpowers, knockback, and hits).
+- Made sure animations and visuals integrate well with gameplay.
 
-Reinier: Art & Visual Design
-Designs and creates character sprites, environments, UI elements, and animations
-Ensures a consistent visual style across the game
-Implements particle effects (e.g., for superpowers, knockback, hits)
-Making sure animations and visuals integrate well with gameplay
+### Emilio - Lead Programmer
+- Implemented player controls, combat systems, enemy AI, and wave mechanics.
+- Managed core gameplay logic, including attack timing, health systems, and hitboxes.
+- Collaborated with Josh to translate game design ideas into code.
+- Assisted with debugging, performance optimization, and version control (e.g., using GitHub).
 
-
-Emilio: Lead Programmer
-Implements player controls, combat systems, enemy AI, and wave mechanics
-Manages core gameplay logic, including attack timing, health systems, and hitboxes
-Works closely with Josh to bring game design ideas to life through code
-Helps with debugging, performance optimization, and version control (e.g., GitHub)
-
-
-Ryan: Sound & Visual Feedback
-Designs and sources sound effects for attacks, waves, damage, and the boss battle
-Adds music that fits different game phases (intro, wave progression, boss fight)
-Assists in visual/audio cues (e.g., screen shakes, knockback effects) for player feedback
-Helps test gameplay feel, making sure every action has impactful feedback
+### Ryan - Sound & Visual Feedback
+- Designed and sourced sound effects for attacks, waves, damage, and the boss battle.
+- Added music suited for different game phases (intro, wave progression, boss fight).
+- Assisted in creating visual and audio cues (e.g., screen shakes, knockback effects) for better feedback.
+- Tested gameplay to ensure every action had a satisfying impact.
