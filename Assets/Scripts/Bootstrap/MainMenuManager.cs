@@ -21,7 +21,7 @@ namespace Bootstrap
         [SerializeField] private TextMeshProUGUI[] playerRankList = new TextMeshProUGUI[4];
         [SerializeField] private TextMeshProUGUI[] playerTextList = new TextMeshProUGUI[4];
 
-        //[SerializeField] private TankSelectionArrow _tankSelector;
+        [SerializeField] private PlayerSelector _playerSelector;
 
         //[SerializeField] private TextMeshProUGUI LobbyViewTestTitle;
         [SerializeField] private Button joinButton_Prefab;
@@ -136,10 +136,9 @@ namespace Bootstrap
             instance.lobbyChat.text += newText;
         }
 
-        public static int GetSelectedTank()
+        public static int GetSelectedPlayer()
         {
-            return -1;
-          //  return instance._tankSelector.currentTank;
+            return instance._playerSelector.currentPlayerType;
         }
 
         public void QuitGame()

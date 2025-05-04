@@ -206,7 +206,7 @@ namespace Bootstrap
             //instansiate then spawn using servermanager
 
             //use static method from MMM to get tank, since this happens on local client, it will always be correct
-            SpawnComponents(conn, BNM, _playerObjectList[0], MainMenuManager.GetPersona());
+            SpawnComponents(conn, BNM, _playerObjectList[MainMenuManager.GetSelectedPlayer()], MainMenuManager.GetPersona());
         }
 
         /// <summary>

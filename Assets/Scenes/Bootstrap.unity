@@ -295,7 +295,9 @@ MonoBehaviour:
   TestSpawn: {fileID: 890669113}
   spawnedObjects: []
   _playerObjectList:
-  - {fileID: 4880593195032325800, guid: 89b69ea81c65246248aec61469cbf303, type: 3}
+  - {fileID: 8551286628664545005, guid: e3fe9f214bd664f43a49982c7bbd41d6, type: 3}
+  - {fileID: 1236494124675456336, guid: c43f07f469996374d921e66949e6b072, type: 3}
+  - {fileID: 3688944436557028197, guid: 757efb2fdf81f46498957573780b82cb, type: 3}
 --- !u!4 &890669113
 Transform:
   m_ObjectHideFlags: 0

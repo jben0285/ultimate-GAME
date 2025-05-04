@@ -16,6 +16,9 @@ public class BazigPlayerMotor : NetworkBehaviour
 
     public ClientMenuManager CMM;
 
+    [SerializeField]
+    private GameObject Visor;
+
     //move data structure. this holds all the data relevant to the user input
     //movement data values are created from user input and are normalized to [-1, 1]
 
@@ -113,19 +116,10 @@ public class BazigPlayerMotor : NetworkBehaviour
     [SerializeField]
     private float _reverseMultiplier;
 
-    private float _turretTurnSpeed;
-
-    [SerializeField]
-    private float _slowTurretSpeed;
-
-    [SerializeField]
-    private float _fastTurretSpeed;
 
     [SerializeField]
     private bool _jump;
 
-    [SerializeField]
-    private bool scoutMode;
 
     public float engine;
     public bool repairing = false;
@@ -222,6 +216,10 @@ private void LockCursor()
         Debug.LogError("OnStartClient");
         base.PredictionManager.OnPreReplicateReplay += PredictionManager_OnPreReplicateReplay;
         LockCursor();
+        if(base.IsOwner)
+        {
+            Visor.layer = LayerMask.NameToLayer("TransparentFX");
+        }
     }
 
 
