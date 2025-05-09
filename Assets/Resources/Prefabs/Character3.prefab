@@ -392,9 +392,9 @@ GameObject:
   - component: {fileID: 4907648120843323204}
   - component: {fileID: 8101253468428254144}
   - component: {fileID: 7686050630455131301}
-  - component: {fileID: 7673940487590164867}
   - component: {fileID: 3345169396913317995}
   - component: {fileID: 4641140443300208011}
+  - component: {fileID: 3010398664075093641}
   m_Layer: 0
   m_Name: Character3
   m_TagString: OtherPlayer
@@ -464,7 +464,7 @@ MonoBehaviour:
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
   NetworkBehaviours:
-  - {fileID: 7673940487590164867}
+  - {fileID: 0}
   - {fileID: 4641140443300208011}
   - {fileID: 1349847835596820652}
   InitializedParentNetworkBehaviour: {fileID: 0}
@@ -501,38 +501,6 @@ MonoBehaviour:
     Rotation: {x: 0, y: 0, z: 0, w: 1}
     Scale: {x: 1, y: 1, z: 1}
     IsValid: 1
---- !u!114 &7673940487590164867
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3688944436557028197}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d6bf2fb203dd4c8bb43f68355d0a873, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _componentIndexCache: 0
-  _addedNetworkObject: {fileID: 7686050630455131301}
-  _networkObjectCache: {fileID: 7686050630455131301}
-  CMM: {fileID: 0}
-  Visor: {fileID: 5902412074174482157}
-  _moveSpeed: 1
-  _lookSensitivity: 2
-  _jumpForce: 10
-  _reverseMultiplier: 0
-  _jump: 0
-  engine: 0
-  repairing: 0
-  PlayerHeadObject: {fileID: 3954704009206645785}
-  VerticalRotation: 0
-  accelerationCounter: 0
-  speedBoost: 0
-  speedBoostCounter: 0
-  bulletSpawn: {fileID: 4444462211808202940}
-  groundCheckDistance: 1.25
-  isCursorLocked: 0
 --- !u!136 &3345169396913317995
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -575,6 +543,31 @@ MonoBehaviour:
   playerHeadObject: {fileID: 3954704009206645785}
   visor: {fileID: 5902412074174482157}
   _lookSensitivity: 2
+--- !u!114 &3010398664075093641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3688944436557028197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6365d54a28afb8e41ac05b4585641110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 7686050630455131301}
+  _networkObjectCache: {fileID: 0}
+  CMM: {fileID: 0}
+  Visor: {fileID: 5902412074174482157}
+  _moveSpeed: 1
+  _lookSensitivity: 2
+  _jumpForce: 10
+  _flightSpeed: 8
+  _maxFlightVelocity: 8
+  groundCheckDistance: 0.1
+  PlayerHeadObject: {fileID: 3954704009206645785}
+  bulletSpawn: {fileID: 4444462211808202940}
 --- !u!1 &4136934460910079264
 GameObject:
   m_ObjectHideFlags: 0

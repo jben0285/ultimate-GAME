@@ -500,6 +500,7 @@ GameObject:
   - component: {fileID: 8824033212309444167}
   - component: {fileID: 6881886181359648734}
   - component: {fileID: 8656753400378392631}
+  - component: {fileID: -8389298728790254277}
   m_Layer: 0
   m_Name: Character2
   m_TagString: OtherPlayer
@@ -597,7 +598,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 16
+  <PrefabId>k__BackingField: 19
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 14175172823465166723
   <SceneId>k__BackingField: 0
@@ -680,6 +681,18 @@ MonoBehaviour:
   playerHeadObject: {fileID: 8774100544533852796}
   visor: {fileID: 561920034200277326}
   _lookSensitivity: 2
+--- !u!114 &-8389298728790254277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236494124675456336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cf5ae46643f68241aa1f7cd2eea906c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1832773802723080362
 GameObject:
   m_ObjectHideFlags: 0
