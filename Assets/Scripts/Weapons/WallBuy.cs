@@ -36,18 +36,6 @@ public class WallBuy : PurchasePoint
 
     protected override void HandlePlayerWeaponsUpdated()
     {
-        List<GameObject> playerWeapons = FindObjectOfType<PlayerWeaponController>().weapons.Value;
-        foreach (GameObject item in playerWeapons)
-        {
-            if(item.GetComponent<FirearmController>()._weaponName.Equals(weaponAvailibleToPurchase.GetComponent<FirearmController>()._weaponName))
-            {
-                purchased = true;
-                visualObject.SetActive(false);
-                break;
-            }
-            visualObject.SetActive(true);
-            purchased = false;
-        }
     }
 }
 }
