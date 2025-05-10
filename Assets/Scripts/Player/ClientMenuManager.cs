@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Bootstrap;
+using TMPro;
 
 namespace Player
 {
@@ -10,22 +11,28 @@ namespace Player
     {
         private static ClientMenuManager instance;
 
+
+        //assigned by bootstrap network manager
+        public PlayerHealth _health;
         public bool InMenu;
+
+        public bool dead;
 
         //public PlayerFireController fireCont;
        // PlayerFireController.FireState prevState;
-        [SerializeField] Button ResumeButton, LeaveButton;
+        [SerializeField] Button ResumeButton, LeaveButton, RespawnButton;
+        [SerializeField]
+        private TextMeshProUGUI RespawnText;
         [SerializeField] GameObject ClientMenu;
+
+        [SerializeField] GameObject RespawnMenu;
+
+        public string KilledBy;
 
         private void Awake() => instance = this;
 
         // Start is called before the first frame update
-        void Start()
-        {
-            //instance.LeaveButton.onClick
-            // .AddListener(() => BootstrapNetworkManager.ChangeNetworkScene("Main Men", list));
-
-        }
+        
 
         // Update is called once per frame
         void Update()
@@ -38,8 +45,10 @@ namespace Player
             {
                 HideMenu_Click();
             }
-
-
+            if(_health != null)
+            {
+                _health.CMM = this;
+            }
         }
 
         private void ShowMenu()
@@ -69,8 +78,24 @@ namespace Player
         {
             //string[] scenesToClose = new string[] { "Scne" };
             //BootstrapNetworkManager.ChangeNetworkScene("Main men", scenesToClose, true);
+            //true as in in game
             BootstrapManager.LeaveLobby(true);
             Cursor.visible = true;
+        }
+
+        public void ShowRespawnMenu()
+        {
+            RespawnText.text = "You were killed by: " + KilledBy;
+            RespawnMenu.SetActive(true);
+            dead = false;
+        }
+
+        public void Respawn_Click()
+        {
+            RespawnMenu.SetActive(false);
+            dead = false;
+            //looks confusing
+            _health.RespawnServer(_health);
         }
     }
 }

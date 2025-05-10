@@ -252,8 +252,8 @@ GameObject:
   - component: {fileID: 695137811}
   - component: {fileID: 695137810}
   - component: {fileID: 695137809}
-  - component: {fileID: 695137814}
   - component: {fileID: 695137813}
+  - component: {fileID: 695137814}
   m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
@@ -409,12 +409,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 695137808}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9729ae7ce24d0456a9bb9ba37e453968, type: 3}
+  m_Script: {fileID: 11500000, guid: 0f6a572c854da3843a45a2581094704b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _componentIndexCache: 255
   _addedNetworkObject: {fileID: 695137813}
   _networkObjectCache: {fileID: 0}
+  StartingHealth: 10000
+  spawnPoint: {fileID: 0}
+  CMM: {fileID: 0}
+  BPM: {fileID: 0}
+  bloodEffect: {fileID: 4265035536807947425, guid: 005e8b9b9810d9e42a4e33825d738bde, type: 3}
 --- !u!43 &1042561301
 Mesh:
   m_ObjectHideFlags: 0

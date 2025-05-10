@@ -291,7 +291,8 @@ namespace Bootstrap
                 activePlayer.tag = "LocalPlayer";
                 ClientMenuManager CMM = activeClient.GetComponent<ClientMenuManager>();
                 activePlayer.GetComponent<BazigPlayerMotor>().CMM = CMM;
-
+                CMM._health = activePlayer.GetComponent<PlayerHealth>();
+                
                 break;
 
                 //main stuff here

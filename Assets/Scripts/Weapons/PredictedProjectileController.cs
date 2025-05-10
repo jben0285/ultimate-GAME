@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Player;
+using Steamworks;
 using UnityEngine;
 
 
@@ -52,7 +53,7 @@ public class PredictedProjectileController : MonoBehaviour
                 PlayerHealth health = hit.collider.GetComponentInParent<PlayerHealth>();
                 if(health != null)
                 {
-                    health.DealDamage(health, 10f);
+                    health.DealDamage(health, 10f, SteamFriends.GetPersonaName());
                 }
             }
             transform.position = hit.transform.position;

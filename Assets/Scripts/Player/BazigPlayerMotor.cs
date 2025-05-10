@@ -64,6 +64,9 @@ public class BazigPlayerMotor : NetworkBehaviour
     // private Rigidbody _rigidBody;
     public ClientMenuManager CMM;
 
+    [SerializeField]
+    private PlayerHealth _health;
+
     /// <summary>
     /// move data structure. this holds all the data relevant to the user input
     /// </summary>
@@ -390,7 +393,7 @@ public class BazigPlayerMotor : NetworkBehaviour
     [Replicate]
     private void Move(MovementData data, ReplicateState state = ReplicateState.Invalid, Channel channel = Channel.Unreliable)
     {
-        float sensitivity = 1f;
+        float sensitivity = .1f;
         if (_predictionRigidbody != null) // Ensure the Rigidbody reference is not null
         {
 
