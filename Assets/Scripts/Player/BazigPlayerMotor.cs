@@ -179,6 +179,11 @@ public class BazigPlayerMotor : NetworkBehaviour
     [SerializeField]
     private bool isCursorLocked;
 
+    private float _currentPitch = 0f;
+    private float _currentYaw = 0f;
+    private float _lastSentYaw = 0f;
+    private const float YawSyncThreshold = 0.1f; // Only sync if yaw changes enough
+
     private void Awake()
     {
         //Debug.LogError("Awake");
@@ -396,7 +401,6 @@ public class BazigPlayerMotor : NetworkBehaviour
         float sensitivity = .1f;
         if (_predictionRigidbody != null) // Ensure the Rigidbody reference is not null
         {
-
             // Calculate movement directions using player's local axes
             Vector3 forwardDirection =  transform.forward; // Forward for W/S
             Vector3 rightDirection =  transform.right; // Right for A/D
@@ -419,32 +423,14 @@ public class BazigPlayerMotor : NetworkBehaviour
             {
                 Vector3 grappleForce = _headObject.transform.forward * 12f;
                 _predictionRigidbody.AddForce(grappleForce, ForceMode.Impulse);
-
-
             }
 
             // Apply gravity
             _predictionRigidbody.AddForce(Physics.gravity, ForceMode.Acceleration);
-            
-            // if(CMM != null && !CMM.InMenu)
-            // {
-            //     // Handle vertical rotation for the PlayerHeadObject
 
-            //     // // Handle horizontal rotation for the player transform
-            //     float horizontalRotation = transform.eulerAngles.y + data.LookX * _lookSensitivity; // Adjust horizontal rotation based on input
-            //     transform.rotation = Quaternion.Euler(0, horizontalRotation, 0); // Update player rotation, keeping only Y-axis
-            // }
-
-            Vector3 cameraLocalEulerAngles = _headObject.localEulerAngles; 
-            float pitch = cameraLocalEulerAngles.x > 180.0f ? cameraLocalEulerAngles.x - 360.0f : cameraLocalEulerAngles.x;
-            pitch = Mathf.Clamp(pitch - data.Pitch * sensitivity, -67.5f, 67.5f);
-            cameraLocalEulerAngles.x = pitch < 0.0f ? pitch + 360.0f : pitch;
-            _headObject.transform.localEulerAngles = cameraLocalEulerAngles;
-
-            _predictionRigidbody.Rigidbody.MoveRotation(_predictionRigidbody.Rigidbody.rotation * Quaternion.Euler(0.0f, data.Yaw * sensitivity, 0.0f));
+            // Camera/head rotation is now handled client-side only in Update()
 
             _predictionRigidbody.Simulate();
-
         }
     }
 
@@ -457,17 +443,15 @@ public class BazigPlayerMotor : NetworkBehaviour
     [ObserversRpc(ExcludeServer = true)]
     private void BroadcastYawRotationHostObserver(float yawRotation)
     {
-        transform.rotation = Quaternion.Euler(0, yawRotation, 0);
+        if (!IsOwner)
+            transform.localRotation = Quaternion.Euler(0, yawRotation, 0);
     }
 
     [ObserversRpc(RunLocally = true)]
     private void BroadcastYawRotation(float yawRotation)
     {
         if (!IsOwner)
-        {
-            // Non-owners apply the server's authoritative rotation
-            transform.rotation = Quaternion.Euler(0, yawRotation, 0);
-        }
+            transform.localRotation = Quaternion.Euler(0, yawRotation, 0);
     }
 
 
@@ -480,7 +464,35 @@ private void ReconcileState(ReconcileData data, Channel channel = Channel.Unreli
     _predictionRigidbody.Reconcile(data.PredictionRigidbody);
 }
 
+    private void Update()
+    {
+        if (!IsOwner) return;
+        HandleMouseLook();
+    }
 
-   
+    private void HandleMouseLook()
+    {
+        float mouseX = _yawAction.ReadValue<float>() * _lookSensitivity;
+        float mouseY = _pitchAction.ReadValue<float>() * _lookSensitivity;
+
+        // Yaw: rotate the player body (Y axis)
+        _currentYaw += mouseX;
+        transform.localRotation = Quaternion.Euler(0f, _currentYaw, 0f);
+
+        // Pitch: rotate the head/camera (X axis)
+        _currentPitch -= mouseY;
+        _currentPitch = Mathf.Clamp(_currentPitch, -67.5f, 67.5f);
+        Vector3 headEuler = _headObject.localEulerAngles;
+        headEuler.x = _currentPitch;
+        _headObject.localEulerAngles = headEuler;
+
+        // Sync yaw to server if changed enough
+        if (Mathf.Abs(_currentYaw - _lastSentYaw) > YawSyncThreshold)
+        {
+            BroadcastYawRotationHost(_currentYaw);
+            _lastSentYaw = _currentYaw;
+        }
+    }
+
 }
 }
