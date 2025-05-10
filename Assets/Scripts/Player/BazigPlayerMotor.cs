@@ -20,12 +20,16 @@ public class BazigPlayerMotor : NetworkBehaviour
     private InputAction _horizontalAction;
     private InputAction _verticalAction;
     private InputAction _jumpAction;
+
+    private InputAction _grappleAction;
     private InputAction _pitchAction;
     private InputAction _yawAction;
 
     // Serialized Fields for fine tuning movement
     private float _moveForce = 2f;
     private float _jumpForce = 2f;
+
+    private float _grappleForce = 10f;
     private float _lookSensitivity = 0.1f;
 
 
@@ -48,6 +52,8 @@ public class BazigPlayerMotor : NetworkBehaviour
     private float horizontal;
     private float vertical;
     private bool jump;
+
+    private bool grapple;
     private float pitch;
     private float yaw;
 
@@ -75,9 +81,11 @@ public class BazigPlayerMotor : NetworkBehaviour
 
         public readonly bool Jump;
 
+        public readonly bool Grapple;
+
         public readonly bool SpeedBoost;
 
-        public MovementData(float horizontal, float vertical, float yaw, float pitch, float yawRotation, bool speedBoost, int speedBoostCounter, bool jump) // Updated to float
+        public MovementData(float horizontal, float vertical, float yaw, float pitch, float yawRotation, bool speedBoost, int speedBoostCounter, bool jump, bool grapple) // Updated to float
         {
             Horizontal = horizontal;
             Vertical = vertical;
@@ -87,6 +95,7 @@ public class BazigPlayerMotor : NetworkBehaviour
             SpeedBoost = speedBoost;
             SpeedBoostCounter = speedBoostCounter;
             Jump = jump;
+            Grapple = grapple;
             _tick = 0u;
         }
 
@@ -186,12 +195,14 @@ public class BazigPlayerMotor : NetworkBehaviour
             _horizontalAction = _inputActionAsset.FindActionMap("Player").FindAction("Horizontal");
             _verticalAction = _inputActionAsset.FindActionMap("Player").FindAction("Vertical");
             _jumpAction = _inputActionAsset.FindActionMap("Player").FindAction("Jump");
+            _grappleAction = _inputActionAsset.FindActionMap("Player").FindAction("Grapple");
             _pitchAction = _inputActionAsset.FindActionMap("Player").FindAction("Pitch");
             _yawAction = _inputActionAsset.FindActionMap("Player").FindAction("Yaw");
             
             _horizontalAction.Enable();
             _verticalAction.Enable();
             _jumpAction.Enable();
+            _grappleAction.Enable();
             _pitchAction.Enable();
             _yawAction.Enable();
 
@@ -200,6 +211,7 @@ public class BazigPlayerMotor : NetworkBehaviour
 
             _moveForce = 2f;
              _jumpForce = 2f;
+             _grappleForce = 10f;
             _lookSensitivity = 0.1f;
 
         }
@@ -215,6 +227,7 @@ public class BazigPlayerMotor : NetworkBehaviour
             _horizontalAction.Disable();
             _verticalAction.Disable();
             _jumpAction.Disable();
+            _grappleAction.Disable();
             _pitchAction.Disable();
             _yawAction.Disable();
         }
@@ -338,6 +351,7 @@ public class BazigPlayerMotor : NetworkBehaviour
         horizontal = _horizontalAction.ReadValue<float>();
         vertical = _verticalAction.ReadValue<float>();
         jump = _jumpAction.IsPressed() && IsGrounded(out RaycastHit hitInfo);
+        grapple = _grappleAction.IsPressed();
         pitch = _pitchAction.ReadValue<float>();
         yaw = _yawAction.ReadValue<float>();
 
@@ -347,7 +361,7 @@ public class BazigPlayerMotor : NetworkBehaviour
         //           $"Look X: {yaw},\n" + 
         //           $"Look Y: {pitch}");
         // Return the data as new MoveData struct
-        MovementData moveData = new MovementData(horizontal, vertical, yaw, pitch, -1f, this.speedBoost, this.speedBoostCounter, jump);
+        MovementData moveData = new MovementData(horizontal, vertical, yaw, pitch, -1f, this.speedBoost, this.speedBoostCounter, jump, grapple);
         return moveData;
     }
 
@@ -374,6 +388,7 @@ public class BazigPlayerMotor : NetworkBehaviour
     [Replicate]
     private void Move(MovementData data, ReplicateState state = ReplicateState.Invalid, Channel channel = Channel.Unreliable)
     {
+        float sensitivity = 1f;
         if (_predictionRigidbody != null) // Ensure the Rigidbody reference is not null
         {
 
@@ -395,6 +410,14 @@ public class BazigPlayerMotor : NetworkBehaviour
                 _predictionRigidbody.AddForce(jumpForce, ForceMode.Impulse);
             }
 
+            if (data.Grapple)
+            {
+                Vector3 grappleForce = _headObject.transform.forward * 12f;
+                _predictionRigidbody.AddForce(grappleForce, ForceMode.Impulse);
+
+
+            }
+
             // Apply gravity
             _predictionRigidbody.AddForce(Physics.gravity, ForceMode.Acceleration);
             
@@ -409,11 +432,11 @@ public class BazigPlayerMotor : NetworkBehaviour
 
             Vector3 cameraLocalEulerAngles = _headObject.localEulerAngles; 
             float pitch = cameraLocalEulerAngles.x > 180.0f ? cameraLocalEulerAngles.x - 360.0f : cameraLocalEulerAngles.x;
-            pitch = Mathf.Clamp(pitch - data.Pitch * 0.025f, -67.5f, 67.5f);
+            pitch = Mathf.Clamp(pitch - data.Pitch * sensitivity, -67.5f, 67.5f);
             cameraLocalEulerAngles.x = pitch < 0.0f ? pitch + 360.0f : pitch;
             _headObject.transform.localEulerAngles = cameraLocalEulerAngles;
 
-            _predictionRigidbody.Rigidbody.MoveRotation(_predictionRigidbody.Rigidbody.rotation * Quaternion.Euler(0.0f, data.Yaw * 0.025f, 0.0f));
+            _predictionRigidbody.Rigidbody.MoveRotation(_predictionRigidbody.Rigidbody.rotation * Quaternion.Euler(0.0f, data.Yaw * sensitivity, 0.0f));
 
             _predictionRigidbody.Simulate();
 

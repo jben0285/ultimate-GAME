@@ -865,7 +865,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 7
+  <PrefabId>k__BackingField: 8
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 8725824334256907465
   <SceneId>k__BackingField: 0
@@ -912,12 +912,12 @@ MonoBehaviour:
   _componentIndexCache: 0
   _addedNetworkObject: {fileID: 6338806279402370395}
   _networkObjectCache: {fileID: 6338806279402370395}
-  _inputActionAsset: {fileID: -944628639613478452, guid: 1be11cb0340e86c4cbcc93c4a1b8932b, type: 3}
+  _inputActionAsset: {fileID: -944628639613478452, guid: b2e7f0997bfe4e842bf9eab3e185eb74, type: 3}
   feetOffset: {x: 0, y: -0.5, z: 0}
   feetRadius: 0.5
   groundLayers:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
   _headObject: {fileID: 2964792579137959127}
   Visor: {fileID: 6054575886471665778}
   CMM: {fileID: 0}
