@@ -47,7 +47,7 @@ public class PredictedProjectileController : MonoBehaviour
         // Fire a raycast in the specified direction
         if (Physics.Raycast(transform.position, lfd.direction, out hit, lfd.speed, collisionMask))
         {
-            if(hit.collider.gameObject.layer == LayerMask.NameToLayer("OtherPlayer"))
+            if(hit.collider.gameObject.layer == LayerMask.NameToLayer("OtherPlayerLayer"))
             {
                 PlayerHealth health = hit.collider.GetComponentInParent<PlayerHealth>();
                 if(health != null)

@@ -80,6 +80,7 @@ public class BazigPlayerMotor : NetworkBehaviour
         public readonly int SpeedBoostCounter;
 
         public readonly bool Jump;
+        
 
         public readonly bool Grapple;
 
@@ -399,7 +400,7 @@ public class BazigPlayerMotor : NetworkBehaviour
 
             // Combine input to calculate total movement force
             Vector3 movementForce = (forwardDirection * data.Vertical + rightDirection * data.Horizontal) * 30f;
-            Debug.Log(movementForce);
+            // Debug.Log(movementForce);
             // Apply movement force to the Rigidbody
             _predictionRigidbody.AddForce(movementForce, ForceMode.Acceleration);
 

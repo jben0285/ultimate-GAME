@@ -18,12 +18,21 @@ namespace Player {
 
         public void OnHealthChanged(float previous, float current, bool asServer)
         {
-            Debug.Log("onhealthchanged");
+            Debug.Log($"onhealthchanged from {previous} to {current}");
         }
         // Update is called once per frame
         void Update()
         {
             
+        }
+
+        public override void OnStartNetwork()
+        {
+            base.OnStartNetwork();
+            if(base.IsServerStarted)
+            {
+                _health.Value = 25f;
+            }
         }
         public void DealDamage(PlayerHealth opponentHealth, float damage)
         {
