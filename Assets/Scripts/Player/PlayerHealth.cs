@@ -18,7 +18,13 @@ namespace Player {
 
         public void OnHealthChanged(float previous, float current, bool asServer)
         {
-            Debug.Log($"onhealthchanged from {previous} to {current}");
+            ShowHealth(current);
+        }
+
+        [ObserversRpc(RunLocally = true)]
+        public void ShowHealth(float health)
+        {
+            Debug.LogWarning($"health of {gameObject.name} is: " + health);
         }
         // Update is called once per frame
         void Update()
