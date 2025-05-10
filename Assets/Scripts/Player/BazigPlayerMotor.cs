@@ -351,7 +351,7 @@ public class BazigPlayerMotor : NetworkBehaviour
         horizontal = _horizontalAction.ReadValue<float>();
         vertical = _verticalAction.ReadValue<float>();
         jump = _jumpAction.IsPressed() && IsGrounded(out RaycastHit hitInfo);
-        grapple = _grappleAction.IsPressed();
+        grapple = _grappleAction.IsPressed() && 
         pitch = _pitchAction.ReadValue<float>();
         yaw = _yawAction.ReadValue<float>();
 
@@ -385,6 +385,7 @@ public class BazigPlayerMotor : NetworkBehaviour
         return isGrounded;
     }
 
+    
     [Replicate]
     private void Move(MovementData data, ReplicateState state = ReplicateState.Invalid, Channel channel = Channel.Unreliable)
     {
