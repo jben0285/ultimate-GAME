@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Player;
 using UnityEngine;
 
 
@@ -46,6 +47,14 @@ public class PredictedProjectileController : MonoBehaviour
         // Fire a raycast in the specified direction
         if (Physics.Raycast(transform.position, lfd.direction, out hit, lfd.speed, collisionMask))
         {
+            if(hit.collider.gameObject.layer == LayerMask.NameToLayer("OtherPlayer"))
+            {
+                PlayerHealth health = hit.collider.GetComponentInParent<PlayerHealth>();
+                if(health != null)
+                {
+                    health.DealDamage(health, 10f);
+                }
+            }
             transform.position = hit.transform.position;
             Debug.Log("Hit: " + hit.collider.name);
             Destroy(gameObject);
