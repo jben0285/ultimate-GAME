@@ -187,7 +187,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1826837239227508986
 Transform:
   m_ObjectHideFlags: 0
@@ -267,6 +267,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1826837239227508986}
+  - {fileID: 8174357438303240113}
   m_Father: {fileID: 5838753668493097965}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5735924851531157795
@@ -295,12 +296,12 @@ Transform:
   m_GameObject: {fileID: 5735924851531157795}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.69, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4512148113888893018}
-  m_Father: {fileID: 2072714157316208058}
+  m_Father: {fileID: 2964792579137959127}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5651371943531672752
 MonoBehaviour:
@@ -314,7 +315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07b17682781f540d2b9cc81865019a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 2
+  _componentIndexCache: 1
   _addedNetworkObject: {fileID: 6338806279402370395}
   _networkObjectCache: {fileID: 6338806279402370395}
   currentAmmoCount: 0
@@ -669,37 +670,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!1 &6634544076467750063
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5989905240308372716}
-  m_Layer: 0
-  m_Name: BulletSpawn
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5989905240308372716
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6634544076467750063}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.427, y: 0.393, z: 1.311}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2072714157316208058}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7507427616973657225
 GameObject:
   m_ObjectHideFlags: 0
@@ -799,9 +769,8 @@ GameObject:
   - component: {fileID: 2072714157316208058}
   - component: {fileID: 5752979564089483551}
   - component: {fileID: 6338806279402370395}
-  - component: {fileID: 9071551526011297014}
   - component: {fileID: 6135081210216163785}
-  - component: {fileID: 6027940998590563080}
+  - component: {fileID: 5277177848567270629}
   m_Layer: 0
   m_Name: Character1
   m_TagString: OtherPlayer
@@ -823,8 +792,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5838753668493097965}
-  - {fileID: 5989905240308372716}
-  - {fileID: 8174357438303240113}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &5752979564089483551
@@ -836,8 +803,8 @@ Rigidbody:
   m_GameObject: {fileID: 8551286628664545005}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 5
-  m_AngularDrag: 1
+  m_Drag: 0.5
+  m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -871,8 +838,7 @@ MonoBehaviour:
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
   NetworkBehaviours:
-  - {fileID: 9071551526011297014}
-  - {fileID: 6027940998590563080}
+  - {fileID: 5277177848567270629}
   - {fileID: 5651371943531672752}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects:
@@ -899,7 +865,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 16
+  <PrefabId>k__BackingField: 7
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 8725824334256907465
   <SceneId>k__BackingField: 0
@@ -908,38 +874,6 @@ MonoBehaviour:
     Rotation: {x: 0, y: 0, z: 0, w: 1}
     Scale: {x: 1, y: 1, z: 1}
     IsValid: 1
---- !u!114 &9071551526011297014
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8551286628664545005}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d6bf2fb203dd4c8bb43f68355d0a873, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _componentIndexCache: 0
-  _addedNetworkObject: {fileID: 6338806279402370395}
-  _networkObjectCache: {fileID: 6338806279402370395}
-  CMM: {fileID: 0}
-  Visor: {fileID: 6054575886471665778}
-  _moveSpeed: 1
-  _lookSensitivity: 2
-  _jumpForce: 10
-  _reverseMultiplier: 0
-  _jump: 0
-  engine: 0
-  repairing: 0
-  PlayerHeadObject: {fileID: 2964792579137959127}
-  VerticalRotation: 0
-  accelerationCounter: 0
-  speedBoost: 0
-  speedBoostCounter: 0
-  bulletSpawn: {fileID: 4512148113888893018}
-  groundCheckDistance: 1.25
-  isCursorLocked: 0
 --- !u!136 &6135081210216163785
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -963,7 +897,7 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6027940998590563080
+--- !u!114 &5277177848567270629
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -972,16 +906,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 8551286628664545005}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62d86699f485a4821a6784582473ced5, type: 3}
+  m_Script: {fileID: 11500000, guid: 7d6bf2fb203dd4c8bb43f68355d0a873, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 1
+  _componentIndexCache: 0
   _addedNetworkObject: {fileID: 6338806279402370395}
   _networkObjectCache: {fileID: 6338806279402370395}
-  mainCamera: {fileID: 0}
-  playerHeadObject: {fileID: 2964792579137959127}
-  visor: {fileID: 6054575886471665778}
-  _lookSensitivity: 2
+  _inputActionAsset: {fileID: -944628639613478452, guid: 1be11cb0340e86c4cbcc93c4a1b8932b, type: 3}
+  feetOffset: {x: 0, y: -0.5, z: 0}
+  feetRadius: 0.5
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 8
+  _headObject: {fileID: 2964792579137959127}
+  Visor: {fileID: 6054575886471665778}
+  CMM: {fileID: 0}
+  _reverseMultiplier: 0
+  _jump: 0
+  engine: 0
+  repairing: 0
+  PlayerHeadObject: {fileID: 2964792579137959127}
+  speedBoost: 0
+  speedBoostCounter: 0
+  bulletSpawn: {fileID: 2029457459397892515}
+  isCursorLocked: 0
 --- !u!1 &8569477449432136584
 GameObject:
   m_ObjectHideFlags: 0

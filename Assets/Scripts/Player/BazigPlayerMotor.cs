@@ -6,94 +6,123 @@ using FishNet.Object.Prediction;
 using FishNet.Transporting;
 using GameKit.Dependencies.Utilities;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 
 namespace Player
 {
 public class BazigPlayerMotor : NetworkBehaviour
 {
+    // Input fields
+    [SerializeField]
+    private InputActionAsset _inputActionAsset;
+
+    private InputAction _horizontalAction;
+    private InputAction _verticalAction;
+    private InputAction _jumpAction;
+    private InputAction _pitchAction;
+    private InputAction _yawAction;
+
+    // Serialized Fields for fine tuning movement
+    private float _moveForce = 2f;
+    private float _jumpForce = 2f;
+    private float _lookSensitivity = 0.1f;
 
 
-    public ClientMenuManager CMM;
+    [SerializeField]
+    private Vector3 feetOffset;
+
+    [SerializeField]
+    private float feetRadius;
+
+    [SerializeField]
+    private LayerMask groundLayers;
+
+    [SerializeField]
+    private Transform _headObject;
 
     [SerializeField]
     private GameObject Visor;
 
-    //move data structure. this holds all the data relevant to the user input
-    //movement data values are created from user input and are normalized to [-1, 1]
+    //input values client side
+    private float horizontal;
+    private float vertical;
+    private bool jump;
+    private float pitch;
+    private float yaw;
 
-    public struct ReplicateData : IReplicateData
+    [SerializeField]
+    private PredictionRigidbody _predictionRigidbody;
+
+    // [SerializeField]
+    // private Rigidbody _rigidBody;
+    public ClientMenuManager CMM;
+
+    /// <summary>
+    /// move data structure. this holds all the data relevant to the user input
+    /// </summary>
+    private struct MovementData : IReplicateData
     {
-        public float HorizontalInput;
-        public float VerticalInput;
+        public readonly float Horizontal;
+        public readonly float Vertical;
 
-        public float LookX;
+        public readonly float Yaw;
 
-        public float LookY;
-  //      public bool ScoutMode;
-      public float YawRotation; // The yaw rotation of the player (client-authoritative)
+        public readonly float Pitch;
+        public readonly float YawRotation; 
 
-        public float AccelerationCounter; // Updated to float
-  //      public float Engine;
-        public int SpeedBoostCounter; // Added speedBoostCounter to MoveData
+        public readonly int SpeedBoostCounter;
 
-        public bool Jump;
-        //refers to turret angle
-//        public float DesiredAngle;
+        public readonly bool Jump;
 
-        public bool SpeedBoost;
+        public readonly bool SpeedBoost;
 
-        public ReplicateData(float horizontalInput, float verticalInput, float lookX, float lookY, float yawRotation, float accelerationCounter, bool speedBoost, int speedBoostCounter, bool jump) // Updated to float
+        public MovementData(float horizontal, float vertical, float yaw, float pitch, float yawRotation, bool speedBoost, int speedBoostCounter, bool jump) // Updated to float
         {
-            HorizontalInput = horizontalInput;
-            VerticalInput = verticalInput;
-            LookX = lookX;
-            LookY = lookY;
-                    YawRotation = yawRotation;
-
-      //      DesiredAngle = desiredAngle;
-       //     ScoutMode = scoutMode;
-            AccelerationCounter = accelerationCounter; // Updated to float
-       //     Engine = engine;
+            Horizontal = horizontal;
+            Vertical = vertical;
+            Yaw = yaw;
+            Pitch = pitch;
+            YawRotation = yawRotation;
             SpeedBoost = speedBoost;
-            SpeedBoostCounter = speedBoostCounter; // Assign the value
+            SpeedBoostCounter = speedBoostCounter;
             Jump = jump;
-            _tick = 0;
+            _tick = 0u;
         }
 
-        //required by fishnet
 
+        //required by fishnet
         private uint _tick;
+        //do not remove, used "under the hood"
         public void Dispose() { }
         public uint GetTick() => _tick;
         public void SetTick(uint value) => _tick = value;
     }
 
-
-    //contains all the move data to reconcile (fix) with the server
-    //position, rotation, and their speeds are all included + the turret's current angle
+/// <summary>
+///contains all the move data to reconcile (fix) with the server
+/// </summary>
     public struct ReconcileData : IReconcileData
     {   
         public PredictionRigidbody PredictionRigidbody;
-        public Vector3 Position;
-        public Quaternion Rotation;
-        // public float TurretAngle;
-        // public Quaternion TurretRotation;
-        public float AccelerationCounter; // Updated to float
-        public bool SpeedBoost;
-        public int SpeedBoostCounter; // Added speedBoostCounter to ReconcileData
+        // public Vector3 Position;
+        // public Quaternion Rotation;
 
-        public ReconcileData(PredictionRigidbody predictionRigidbody, Vector3 position, Quaternion rotation,
-        float accelerationCounter, bool speedBoost, int speedBoostCounter) // Updated to float
+        // public Vector3 Velocity;
+        // public Vector3 AngularVelocity;
+        public bool SpeedBoost;
+
+        public ReconcileData(PredictionRigidbody predictionRigidbody, /* Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 angularVelocity,*/
+        bool speedBoost) // Updated to float
         {
             PredictionRigidbody = predictionRigidbody;
-            Position = position;
-            Rotation = rotation;
+            // Position = position;
+            // Rotation = rotation;
+            // Velocity = velocity;
+            // AngularVelocity = angularVelocity;
             // TurretAngle = turretAngle;
             // TurretRotation = turretRotation;
-            AccelerationCounter = accelerationCounter; // Updated to float
             SpeedBoost = speedBoost;
-            SpeedBoostCounter = speedBoostCounter; // Assign the value
             _tick = 0;
         }
 
@@ -106,13 +135,7 @@ public class BazigPlayerMotor : NetworkBehaviour
     // PlayerAudioController pac;
 
     //can be changed in inspector
-    [SerializeField]
-    private float _moveSpeed;
-    [SerializeField]
-    private float _lookSensitivity;
-
-    [SerializeField]
-    private float _jumpForce;
+    
     [SerializeField]
     private float _reverseMultiplier;
 
@@ -129,21 +152,6 @@ public class BazigPlayerMotor : NetworkBehaviour
 
 
     [SerializeField]
-    private float VerticalRotation;
-
-    [SerializeField]
-    private PredictionRigidbody PredictionRigidbody;
-
-    // [SerializeField]
-    // private Transform turretCenter;
-
-    // [SerializeField]
-    // private float desiredAngle;
-
-    [SerializeField]
-    private float accelerationCounter; // Updated to float
-
-    [SerializeField]
     private bool speedBoost;
 
     [SerializeField]
@@ -153,23 +161,19 @@ public class BazigPlayerMotor : NetworkBehaviour
     private Transform bulletSpawn;
 
     private const float MovementThreshold = 0.05f;
-    private const float HighAccelerationThreshold = 100; // Updated to float
-    private const float LowAccelerationThreshold = 25; // Updated to float
-    private const float MaxAccelerationCounter = 200; // Updated to float
+
 
     [SerializeField]
-    private float groundCheckDistance = 0.1f; // Distance to check for ground
-    [SerializeField]
-        private bool isCursorLocked;
+    private bool isCursorLocked;
 
-        private void Awake()
+    private void Awake()
     {
         //Debug.LogError("Awake");
         //instead of FixedUpdate, use Fishnet's timemanager to update each frame
         
 
-        PredictionRigidbody = ObjectCaches<PredictionRigidbody>.Retrieve();
-        PredictionRigidbody.Initialize(GetComponent<Rigidbody>());
+        _predictionRigidbody = ObjectCaches<PredictionRigidbody>.Retrieve();
+        _predictionRigidbody.Initialize(GetComponent<Rigidbody>());
 
     }
 
@@ -178,18 +182,43 @@ public class BazigPlayerMotor : NetworkBehaviour
             base.OnStartNetwork();
             InstanceFinder.TimeManager.OnTick += TimeManager_OnTick;
             InstanceFinder.TimeManager.OnPostTick += TimeManager_OnPostTick;
+            
+            _horizontalAction = _inputActionAsset.FindActionMap("Player").FindAction("Horizontal");
+            _verticalAction = _inputActionAsset.FindActionMap("Player").FindAction("Vertical");
+            _jumpAction = _inputActionAsset.FindActionMap("Player").FindAction("Jump");
+            _pitchAction = _inputActionAsset.FindActionMap("Player").FindAction("Pitch");
+            _yawAction = _inputActionAsset.FindActionMap("Player").FindAction("Yaw");
+            
+            _horizontalAction.Enable();
+            _verticalAction.Enable();
+            _jumpAction.Enable();
+            _pitchAction.Enable();
+            _yawAction.Enable();
+
+            _predictionRigidbody = ObjectCaches<PredictionRigidbody>.Retrieve();
+            _predictionRigidbody.Initialize(GetComponent<Rigidbody>());
+
+            _moveForce = 2f;
+             _jumpForce = 2f;
+            _lookSensitivity = 0.1f;
+
         }
 
         public override void OnStopNetwork()
         {
             base.OnStopNetwork();
             if (InstanceFinder.TimeManager != null)
-        {
-            InstanceFinder.TimeManager.OnTick -= TimeManager_OnTick;
-            InstanceFinder.TimeManager.OnPostTick -= TimeManager_OnPostTick;
+            {
+                InstanceFinder.TimeManager.OnTick -= TimeManager_OnTick;
+                InstanceFinder.TimeManager.OnPostTick -= TimeManager_OnPostTick;
+            }
+            _horizontalAction.Disable();
+            _verticalAction.Disable();
+            _jumpAction.Disable();
+            _pitchAction.Disable();
+            _yawAction.Disable();
         }
-        }
-private void LockCursor()
+    private void LockCursor()
     {
         // Cursor.lockState = CursorLockMode.Locked; // Lock the cursor to the center
         // Cursor.visible = false; // Hide the cursor
@@ -204,21 +233,21 @@ private void LockCursor()
     }
 
 
-        private void OnDestroy()
+    private void OnDestroy()
     {
-        
-        ObjectCaches<PredictionRigidbody>.StoreAndDefault(ref PredictionRigidbody);
+        ObjectCaches<PredictionRigidbody>.StoreAndDefault(ref _predictionRigidbody);
     }
 
     public override void OnStartClient()
     {
         base.OnStartClient();
-        Debug.LogError("OnStartClient");
         base.PredictionManager.OnPreReplicateReplay += PredictionManager_OnPreReplicateReplay;
-        LockCursor();
+        // LockCursor();
         if(base.IsOwner)
         {
             Visor.layer = LayerMask.NameToLayer("TransparentFX");
+            Camera.main.transform.parent = _headObject;
+            Camera.main.transform.SetPosition(true, Vector3.zero);
         }
     }
 
@@ -242,19 +271,23 @@ private void LockCursor()
         if (!base.IsServerStarted) { }
     }
 
+
+    
+
+    
+
     //subscription to fishnet's built in update function. it overrides the update but only for this script
     private void TimeManager_OnTick()
     {
-        ReplicateData moveData;
+        MovementData moveData;
 
-        //reconcilliate first
-       // ReconcileState(default);
+
         //gather user input and put it into movedata "structure"
         moveData = CreateReplicateData();
         //move player using the data stored in movedata
         Move(moveData);
         // Refactored method call
-        UpdateAccelerationCounter(moveData);
+
         // Toggle cursor lock state with Escape key
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -271,7 +304,8 @@ private void LockCursor()
     //so data after the simulation, which is POST tick
     private void TimeManager_OnPostTick()
     {
-
+        if(!IsServerStarted)
+        return;
 
         
 
@@ -292,92 +326,98 @@ private void LockCursor()
 
         public override void CreateReconcile()
         {
-            ReconcileData rd = new ReconcileData(PredictionRigidbody, transform.position, transform.rotation, accelerationCounter, speedBoost, speedBoostCounter); // Added speedBoostCounter
+            ReconcileData rd = new ReconcileData(_predictionRigidbody, /*_rigidbody.linearVelocity, _rigidBody.position, _rigidBody.rotation, */  speedBoost); // Added speedBoostCounter
             ReconcileState(rd);
         }
 
 
-        private ReplicateData CreateReplicateData()
+    private MovementData CreateReplicateData()
     {
         if(!base.IsOwner)
         return default;
-
-        // Input Axis settings can be changed in the Project Settings Under Input Manager
-        float horizontal = Input.GetAxis("Horizontal"); // Left/right rotation
-        float vertical = Input.GetAxis("Vertical"); // Forward/backward movement
-
-        // Get mouse position for camera rotation
-        float lookX = Input.GetAxis("Mouse X");
-        float lookY = Input.GetAxis("Mouse Y");
-
-        bool jump = Input.GetKey(KeyCode.Space);
-        float yawRotation = transform.eulerAngles.y + lookX;
+        horizontal = _horizontalAction.ReadValue<float>();
+        vertical = _verticalAction.ReadValue<float>();
+        jump = _jumpAction.IsPressed() && IsGrounded(out RaycastHit hitInfo);
+        pitch = _pitchAction.ReadValue<float>();
+        yaw = _yawAction.ReadValue<float>();
 
 
         // Debug.Log($"Float Values: Horizontal Input: {horizontal},\n" + 
         //           $"Vertical Input: {vertical},\n" + 
-        //           $"Look X: {lookX},\n" + 
-        //           $"Look Y: {lookY}");
+        //           $"Look X: {yaw},\n" + 
+        //           $"Look Y: {pitch}");
         // Return the data as new MoveData struct
-        ReplicateData moveData = new ReplicateData(horizontal, vertical, lookX, lookY, yawRotation, this.accelerationCounter, this.speedBoost, this.speedBoostCounter, jump);
+        MovementData moveData = new MovementData(horizontal, vertical, yaw, pitch, -1f, this.speedBoost, this.speedBoostCounter, jump);
         return moveData;
     }
 
+    private bool IsGrounded(out RaycastHit hitInfo)
+    {
+        // Define the ray starting point slightly above the player's feet
+        Vector3 rayOrigin = transform.position + feetOffset;
+
+        // Use the world down vector to ensure the ray points downwards
+        Vector3 rayDirection = Vector3.down;
+        
+        // Define the ray length (adjust as needed)
+        float rayLength = feetRadius + 0.1f; // Slightly longer than feetRadius to ensure contact
+
+        // Perform the raycast and store the result in hitInfo
+        bool isGrounded = Physics.Raycast(rayOrigin, rayDirection, out hitInfo, rayLength, groundLayers);
+        var t = hitInfo;
+        // Optionally, visualize the ray in the editor for debugging
+        Debug.DrawRay(rayOrigin, rayDirection * rayLength, isGrounded ? Color.green : Color.red);
+        Debug.LogWarning(isGrounded);
+        return isGrounded;
+    }
+
     [Replicate]
-    private void Move(ReplicateData data, ReplicateState state = ReplicateState.Invalid, Channel channel = Channel.Unreliable)
+    private void Move(MovementData data, ReplicateState state = ReplicateState.Invalid, Channel channel = Channel.Unreliable)
     {
-        if (PredictionRigidbody != null) // Ensure the Rigidbody reference is not null
-{
+        if (_predictionRigidbody != null) // Ensure the Rigidbody reference is not null
+        {
 
-    // Calculate movement directions using player's local axes
-    Vector3 forwardDirection = transform.forward; // Forward for W/S
-    Vector3 rightDirection = transform.right; // Right for A/D
+            // Calculate movement directions using player's local axes
+            Vector3 forwardDirection =  transform.forward; // Forward for W/S
+            Vector3 rightDirection =  transform.right; // Right for A/D
 
-    // Combine input to calculate total movement force
-    Vector3 movementForce = (forwardDirection * data.VerticalInput + rightDirection * data.HorizontalInput) * _moveSpeed;
+            // Combine input to calculate total movement force
+            Vector3 movementForce = (forwardDirection * data.Vertical + rightDirection * data.Horizontal) * 30f;
+            Debug.Log(movementForce);
+            // Apply movement force to the Rigidbody
+            _predictionRigidbody.AddForce(movementForce, ForceMode.Acceleration);
 
-    // Apply movement force to the Rigidbody
-    PredictionRigidbody.AddForce(movementForce, ForceMode.VelocityChange);
+            // Check if the player is grounded before allowing jump
+            if (data.Jump)
+            {
+                // Apply upward force for jumping
+                Vector3 jumpForce = Vector3.up * 12f; 
+                _predictionRigidbody.AddForce(jumpForce, ForceMode.Impulse);
+            }
 
-    // Check if the player is grounded before allowing jump
-    if (IsGrounded() && data.Jump)
-    {
-        // Apply upward force for jumping
-        Vector3 jumpForce = Vector3.up * _jumpForce; // Adjust force magnitude as needed
-        PredictionRigidbody.AddForce(jumpForce, ForceMode.Impulse);
-    }
+            // Apply gravity
+            _predictionRigidbody.AddForce(Physics.gravity, ForceMode.Acceleration);
+            
+            // if(CMM != null && !CMM.InMenu)
+            // {
+            //     // Handle vertical rotation for the PlayerHeadObject
 
-    // Apply gravity
-    PredictionRigidbody.AddForce(Physics.gravity, ForceMode.Acceleration);
-    
-    // if(CMM != null && !CMM.InMenu)
-    // {
-    //     // Handle vertical rotation for the PlayerHeadObject
+            //     // // Handle horizontal rotation for the player transform
+            //     float horizontalRotation = transform.eulerAngles.y + data.LookX * _lookSensitivity; // Adjust horizontal rotation based on input
+            //     transform.rotation = Quaternion.Euler(0, horizontalRotation, 0); // Update player rotation, keeping only Y-axis
+            // }
 
-    //     // // Handle horizontal rotation for the player transform
-    //     float horizontalRotation = transform.eulerAngles.y + data.LookX * _lookSensitivity; // Adjust horizontal rotation based on input
-    //     transform.rotation = Quaternion.Euler(0, horizontalRotation, 0); // Update player rotation, keeping only Y-axis
-    // }
-    // Simulate the Rigidbody
-    PredictionRigidbody.Simulate();
-    transform.rotation = Quaternion.Euler(0, data.YawRotation, 0);
-     // Update and store vertical rotation
-        // VerticalRotation -= data.LookY * _lookSensitivity; // Adjust vertical rotation based on input
-        // VerticalRotation = Mathf.Clamp(VerticalRotation, -80f, 80f); // Clamp vertical rotation to avoid unnatural angles
-        // bulletSpawn.localRotation = Quaternion.Euler(VerticalRotation, 0, 0); // Update bulletSpawn rotation
-        bulletSpawn.rotation = PlayerHeadObject.rotation;
-    if(IsServerStarted && !IsHostStarted)
-    {
-        BroadcastYawRotation(data.YawRotation);
-    }
+            Vector3 cameraLocalEulerAngles = _headObject.localEulerAngles; 
+            float pitch = cameraLocalEulerAngles.x > 180.0f ? cameraLocalEulerAngles.x - 360.0f : cameraLocalEulerAngles.x;
+            pitch = Mathf.Clamp(pitch - data.Pitch * 0.025f, -67.5f, 67.5f);
+            cameraLocalEulerAngles.x = pitch < 0.0f ? pitch + 360.0f : pitch;
+            _headObject.transform.localEulerAngles = cameraLocalEulerAngles;
 
-    // if(IsHostStarted)
-    // {
-    //     BroadcastYawRotationHost(data.YawRotation);
-    // }
+            _predictionRigidbody.Rigidbody.MoveRotation(_predictionRigidbody.Rigidbody.rotation * Quaternion.Euler(0.0f, data.Yaw * 0.025f, 0.0f));
 
+            _predictionRigidbody.Simulate();
 
-}
+        }
     }
 
     [ServerRpc]
@@ -405,103 +445,14 @@ private void LockCursor()
 
 
 
-    private bool IsGrounded()
-    {
-        // Perform a raycast downwards to check for ground
-        return Physics.Raycast(transform.position, Vector3.down, groundCheckDistance);
-    }
 
-    [Reconcile]
+[Reconcile]
 private void ReconcileState(ReconcileData data, Channel channel = Channel.Unreliable)
 {
-    if (IsOwner && IsServerStarted)
-    {
-        // Host's rotation is authoritative; skip reconciliation for rotation
-        return;
-    }
-
-    if (IsOwner)
-    {
-        // For non-host owner (client), only reconcile if there's a significant mismatch
-        float rotationDifference = Quaternion.Angle(transform.rotation, data.Rotation);
-        if (rotationDifference > 1f) // Adjust threshold to avoid jitter
-        {
-            Debug.Log($"[Client-Owner] Significant rotation mismatch. Reconciling. Difference: {rotationDifference}");
-            transform.rotation = data.Rotation;
-        }
-        else
-        {
-            Debug.Log($"[Client-Owner] Minor rotation difference. Skipping reconciliation. Difference: {rotationDifference}");
-        }
-    }
-    else
-    {
-        // For non-owners, directly apply the server's authoritative rotation
-        transform.rotation = data.Rotation;
-        Debug.Log($"[Non-Owner] Applying server-authoritative rotation: {data.Rotation.eulerAngles.y}");
-    }
-
-    // Reconcile physics and other state
-    PredictionRigidbody.Reconcile(data.PredictionRigidbody);
-    accelerationCounter = data.AccelerationCounter;
-    speedBoostCounter = data.SpeedBoostCounter;
+    _predictionRigidbody.Reconcile(data.PredictionRigidbody);
 }
 
 
-    private bool IsTankMoving(float movementInput)
-    {
-        return Math.Abs(movementInput) >= MovementThreshold;
-    }
-
-    private void ApplyTurningPenalty(float turningInput, bool speedBoost)
-    {
-        if (IsTankTurning(turningInput))
-        {
-            DecreaseAccelerationCounter(speedBoost);
-        }
-        else
-        {
-            IncreaseAccelerationCounter(speedBoost);
-        }
-    }
-
-    private bool IsTankTurning(float turningInput)
-    {
-        return Math.Abs(turningInput) >= MovementThreshold;
-    }
-
-    private void DecreaseAccelerationCounter(bool speedBoost)
-    {
-        if (accelerationCounter <= 0) return;
-
-        if (accelerationCounter > HighAccelerationThreshold)
-        {
-            accelerationCounter -= speedBoost ? .15f : .25f;
-        }
-        else if (accelerationCounter > LowAccelerationThreshold)
-        {
-            accelerationCounter--;
-        }
-    }
-
-    private void IncreaseAccelerationCounter(bool speedBoost)
-    {
-        if (accelerationCounter < MaxAccelerationCounter)
-        {
-            accelerationCounter += speedBoost ? .35f : .1f;
-        }
-    }
-
-    private void UpdateAccelerationCounter(ReplicateData data)
-    {
-        if (IsTankMoving(data.HorizontalInput))
-        {
-            ApplyTurningPenalty(data.VerticalInput, data.SpeedBoost);
-        }
-        else
-        {
-            accelerationCounter = LowAccelerationThreshold;
-        }
-    }
+   
 }
 }

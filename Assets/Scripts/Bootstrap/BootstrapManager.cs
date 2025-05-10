@@ -7,6 +7,7 @@ using FishNet.Managing;
 using FishNet.Transporting;
 using Steamworks;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace Bootstrap
@@ -24,7 +25,8 @@ namespace Bootstrap
         private static BootstrapManager instance;
         private void Awake() => instance = this;
 
-
+        [SerializeField]
+        private InputActionAsset _inputAsset;
 
         [SerializeField] private string mainMenuName;
         [SerializeField] private NetworkManager _networkManager;
@@ -78,7 +80,6 @@ namespace Bootstrap
 
             }
             InstanceFinder.ClientManager.RegisterBroadcast<LobbyCloseBroadcast>(OnLobbyClose);
-
             //_fishySteamworks.Initialize(_networkManager, 0);
 
         }
