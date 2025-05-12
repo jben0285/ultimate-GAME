@@ -320,15 +320,6 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 6338806279402370395}
   currentAmmoCount: 0
   totalBulletCount: 0
-  weapons:
-    NetworkManager: {fileID: 0}
-    NetworkBehaviour: {fileID: 0}
-    _value:
-    - {fileID: 6624558741116586664}
-  selectedWeapon:
-    NetworkManager: {fileID: 0}
-    NetworkBehaviour: {fileID: 0}
-    _value: 0
   weaponSpawnPoint: {fileID: 0}
   nearbyPurchasePoint: {fileID: 0}
   money: 0
@@ -787,7 +778,7 @@ Transform:
   m_GameObject: {fileID: 8551286628664545005}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -1.66, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -921,7 +912,7 @@ MonoBehaviour:
   _headObject: {fileID: 2964792579137959127}
   Visor: {fileID: 6054575886471665778}
   CMM: {fileID: 0}
-  _health: {fileID: 0}
+  _health: {fileID: 2860800947192733048}
   _reverseMultiplier: 0
   _jump: 0
   engine: 0
@@ -949,7 +940,7 @@ MonoBehaviour:
   StartingHealth: 100
   spawnPoint: {fileID: 0}
   CMM: {fileID: 0}
-  BPM: {fileID: 0}
+  BPM: {fileID: 5277177848567270629}
   bloodEffect: {fileID: 4265035536807947425, guid: 005e8b9b9810d9e42a4e33825d738bde, type: 3}
 --- !u!1 &8569477449432136584
 GameObject:
