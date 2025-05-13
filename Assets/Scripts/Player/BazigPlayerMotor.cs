@@ -204,7 +204,9 @@ namespace Player
         [Replicate]
         private void Move(MovementData data, ReplicateState state = ReplicateState.Invalid, Channel channel = Channel.Unreliable)
         {
-            if (_predictionRigidbody == null) return;
+            Debug.Log($"[Replicate] on {(IsOwner? "Owner" : IsServer? "Server" : "Spectator")} tick {base.TimeManager.LocalTick} state={state}");
+
+            // if (_predictionRigidbody == null) return;
 
             Vector3 forward = transform.forward;
             Vector3 right   = transform.right;
@@ -232,6 +234,7 @@ namespace Player
         [Reconcile]
         private void ReconcileState(ReconcileData data, Channel channel = Channel.Unreliable)
         {
+            Debug.Log($"[Reconcile] on {(IsOwner? "Owner" : IsServer? "Server" : "Spectator")} tick {base.TimeManager.LocalTick}");
             // Reconcile position & velocity, but leave rotation alone
             _predictionRigidbody.Reconcile(data.PredictionRigidbody);
         }
