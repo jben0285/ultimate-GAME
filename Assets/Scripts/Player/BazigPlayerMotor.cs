@@ -174,7 +174,6 @@ namespace Player
 
         private void TimeManager_OnPostTick()
         {
-            if(!_enabled.Value) return;
             if (!IsServerStarted) return;
             // Send authoritative position & velocity—but NOT rotation
             CreateReconcile();
