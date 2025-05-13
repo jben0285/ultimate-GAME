@@ -339,9 +339,9 @@ namespace Bootstrap
                 if (inGame)
                 {
                     SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
-                if (!SceneManager.GetSceneByName("Main Men").isLoaded)
+                if (!SceneManager.GetSceneByName("Main Menu").isLoaded)
                 { 
-                    SceneManager.LoadScene("Main Men", LoadSceneMode.Additive);
+                    SceneManager.LoadScene("Main Menu", LoadSceneMode.Additive);
                 }
                 }
                 

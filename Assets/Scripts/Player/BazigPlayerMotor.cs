@@ -5,11 +5,17 @@ using FishNet.Transporting;
 using GameKit.Dependencies.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
+using Bootstrap;
+using FishNet.Object.Synchronizing;
 namespace Player
 {
     public class BazigPlayerMotor : NetworkBehaviour
     {
+
+        public readonly SyncVar<bool> _enabled = new();
+
+
+
         #region Serialized Fields & Config
         [Header("Input")]
         [SerializeField] private InputActionAsset _inputActionAsset;
@@ -158,6 +164,7 @@ namespace Player
 
         private void TimeManager_OnTick()
         {
+            if(!_enabled.Value) return;
             if (!IsOwner) return;
 
             // Gather and send input data each tick
@@ -167,6 +174,7 @@ namespace Player
 
         private void TimeManager_OnPostTick()
         {
+            if(!_enabled.Value) return;
             if (!IsServerStarted) return;
             // Send authoritative position & velocity—but NOT rotation
             CreateReconcile();
@@ -236,6 +244,9 @@ namespace Player
         #region Camera Look (Client-Only)
         private void Update()
         {
+
+            if(!_enabled.Value) return;
+
             if (!IsOwner) return;
             HandleMouseLook();
         }
@@ -275,5 +286,26 @@ namespace Player
             transform.rotation = Quaternion.Euler(0f, yaw, 0f);
         }
         #endregion
+
+        void OnEnable()
+        {
+            BootstrapNetworkManager.OnGameStart += HandleGameStart;
+        }
+
+        void OnDisable()
+        {
+            BootstrapNetworkManager.OnGameStart -= HandleGameStart;
+        }
+
+        private void HandleGameStart()
+        {
+            EnablePlayer(this);
+        }
+
+        [ServerRpc(RequireOwnership = true)]
+        private void EnablePlayer(BazigPlayerMotor BPM)
+        {
+            BPM._enabled.Value = true;
+        }
     }
 }

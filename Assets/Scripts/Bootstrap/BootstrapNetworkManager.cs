@@ -19,6 +19,8 @@ namespace Bootstrap
     public class BootstrapNetworkManager : NetworkBehaviour
     {
 
+
+
         private static BootstrapNetworkManager instance;
         private void Awake() => instance = this;
         [Header("Assign In Inspector")]
