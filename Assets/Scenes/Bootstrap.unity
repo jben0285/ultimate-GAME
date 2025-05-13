@@ -352,7 +352,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerPrefab: {fileID: 8863813246863793019, guid: b4e275ec615fb4658b3913bafb6eef93, type: 3}
   _addToDefaultScene: 1
-  Spawns: []
+  Spawns:
+  - {fileID: 890669113}
 --- !u!114 &890669112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386,7 +387,7 @@ Transform:
   m_GameObject: {fileID: 890669110}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 168.22612, y: 8.623463, z: 177.10152}
+  m_LocalPosition: {x: 168.22612, y: 15.19, z: 177.10152}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

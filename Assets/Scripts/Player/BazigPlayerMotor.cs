@@ -205,7 +205,7 @@ namespace Player
 
             Vector3 forward = transform.forward;
             Vector3 right   = transform.right;
-            Vector3 force   = (forward * data.Vertical + right * data.Horizontal) * _moveForce;
+            Vector3 force   = (forward * data.Vertical + right * data.Horizontal) * 25f;
             _predictionRigidbody.AddForce(force, ForceMode.Acceleration);
 
             if (data.Jump)
