@@ -108,7 +108,7 @@ namespace Bootstrap
             TriggerGameStartEvent();
         }
 
-
+        [ObserversRpc(RunLocally = true)]
         private void TriggerGameStartEvent()
         {
             //LoadingCanvas.SetActive(false);
