@@ -12,9 +12,6 @@ namespace Player
     public class BazigPlayerMotor : NetworkBehaviour
     {
 
-        public readonly SyncVar<bool> _enabled = new();
-
-
 
         #region Serialized Fields & Config
         [Header("Input")]
@@ -164,7 +161,6 @@ namespace Player
 
         private void TimeManager_OnTick()
         {
-            if(!_enabled.Value) return;
             if (!IsOwner) return;
 
             // Gather and send input data each tick
@@ -244,8 +240,6 @@ namespace Player
         private void Update()
         {
 
-            if(!_enabled.Value) return;
-
             if (!IsOwner) return;
             HandleMouseLook();
         }
@@ -298,13 +292,7 @@ namespace Player
 
         private void HandleGameStart()
         {
-            EnablePlayer(this);
         }
 
-        [ServerRpc(RequireOwnership = true)]
-        private void EnablePlayer(BazigPlayerMotor BPM)
-        {
-            BPM._enabled.Value = true;
-        }
     }
 }
