@@ -204,6 +204,10 @@ namespace Player
         [Replicate]
         private void Move(MovementData data, ReplicateState state = ReplicateState.Invalid, Channel channel = Channel.Unreliable)
         {
+            if(!base.IsOwner)
+            {
+                Debug.LogError("CLIENT ON REPLICATE");
+            }
             Debug.Log($"[Replicate] on {(IsOwner? "Owner" : IsServer? "Server" : "Spectator")} tick {base.TimeManager.LocalTick} state={state}");
 
             // if (_predictionRigidbody == null) return;
