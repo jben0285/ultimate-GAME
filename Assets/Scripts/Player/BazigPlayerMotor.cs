@@ -161,8 +161,6 @@ namespace Player
 
         private void TimeManager_OnTick()
         {
-            if (!IsOwner) return;
-
             // Gather and send input data each tick
             MovementData md = CreateReplicateData();
             Move(md);
@@ -178,6 +176,10 @@ namespace Player
         #region Input → Movement
         private MovementData CreateReplicateData()
         {
+            if(!base.IsOwner)
+            {
+                return default;
+            }
             float h = _horizontalAction.ReadValue<float>();
             float v = _verticalAction.ReadValue<float>();
             bool groundJump = _jumpAction.IsPressed() && IsGrounded(out _);
