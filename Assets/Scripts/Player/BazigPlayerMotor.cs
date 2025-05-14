@@ -251,7 +251,6 @@ namespace Player
         #region Camera Look (Client-Only)
         private void Update()
         {
-
             if (!IsOwner) return;
             HandleMouseLook();
         }
