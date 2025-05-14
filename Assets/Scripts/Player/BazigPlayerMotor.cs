@@ -23,6 +23,9 @@ namespace Player
         [SerializeField] private float _grappleForce    = 12f;
         [SerializeField] private float _lookSensitivity = 0.1f;
 
+        [SerializeField]
+        private bool useRPCYawSync;
+
         [Header("Ground Check")]
         [SerializeField] private Vector3 feetOffset;
         [SerializeField] private float   feetRadius;
@@ -266,11 +269,14 @@ namespace Player
             transform.rotation = Quaternion.Euler(0f, _currentYaw, 0f);
             _headObject.localEulerAngles = new Vector3(_currentPitch, 0f, 0f);
 
-            // Send to server for other clients (throttled)
-            if (Mathf.Abs(_currentYaw - _lastSentYaw) > YawSyncThreshold)
+            if(useRPCYawSync)
             {
-                SendYawToServer(_currentYaw);
-                _lastSentYaw = _currentYaw;
+                // Send to server for other clients (throttled)
+                if (Mathf.Abs(_currentYaw - _lastSentYaw) > YawSyncThreshold)
+                {
+                    SendYawToServer(_currentYaw);
+                    _lastSentYaw = _currentYaw;
+                }
             }
         }
 
