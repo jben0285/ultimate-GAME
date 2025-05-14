@@ -19,6 +19,8 @@ namespace Bootstrap
     public class BootstrapNetworkManager : NetworkBehaviour
     {
 
+
+
         private static BootstrapNetworkManager instance;
         private void Awake() => instance = this;
         [Header("Assign In Inspector")]
@@ -106,7 +108,7 @@ namespace Bootstrap
             TriggerGameStartEvent();
         }
 
-
+        [ObserversRpc(RunLocally = true)]
         private void TriggerGameStartEvent()
         {
             //LoadingCanvas.SetActive(false);
@@ -291,7 +293,8 @@ namespace Bootstrap
                 activePlayer.tag = "LocalPlayer";
                 ClientMenuManager CMM = activeClient.GetComponent<ClientMenuManager>();
                 activePlayer.GetComponent<BazigPlayerMotor>().CMM = CMM;
-
+                CMM._health = activePlayer.GetComponent<PlayerHealth>();
+                
                 break;
 
                 //main stuff here

@@ -64,8 +64,6 @@ namespace Weapons
         [Header("Assigned During Runtime")]
 
         public BootstrapNetworkManager BNM;
-        [SerializeField] private CinemachineVirtualCamera mainCamera;
-       // [SerializeField] private ShopManager shopManager;
         public GameObject GameManager;
     //    public ShopUI shopRef;
         public List<string> UIBlocker = new();
@@ -179,7 +177,7 @@ namespace Weapons
 
             bool sentFire = false;
             bool sentReload = false;
-            if (Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Space))
+            if (Input.GetKey(KeyCode.Mouse0))
             {
                 sentFire = true;
             }
@@ -387,34 +385,6 @@ namespace Weapons
             GameObject firedGunDecoration = Instantiate(gunExplosionTestPrefab, bulletSpawn.position, bulletSpawn.rotation);
             ServerManager.Spawn(firedGunDecoration);
         }
-
-        [ServerRpc(RequireOwnership = false)]
-        private void ServerFire(GameObject containerPrefab, LiveFireData lfd)
-        {
-            GameObject spawnedContainer = Instantiate(containerPrefab, lfd._bulletSpawnPosition, lfd._bulletSpawnRotation);
-
-        //    ProjectileContainer container = spawnedContainer.GetComponent<ProjectileContainer>();
-            
-            // container.proj.Initialize(lfd, this);
-            // container.decor.Initialize(lfd, this);
-
-            // Debug.LogWarning("Server: spawning " + container.proj.gameObject.name);
-            // container.proj.ready = true;
-            // container.decor.ready = true;
-            // // Spawn the objects on the server for synchronization
-            // ServerManager.Spawn(spawnedContainer);
-            // container.Shed(true);
-
-            // Perform additional actions on the clients, such as playing sounds or animations
-            //GetComponent<AudioSource>().Play();
-            tank_barrel_animator.SetTrigger("gun");
-            GameObject firedGunDecoration = Instantiate(gunExplosionTestPrefab, bulletSpawn.position, bulletSpawn.rotation);
-            ServerManager.Spawn(firedGunDecoration);
-        }
-
-
-        
-
 
         private void OnDestroy()
         {

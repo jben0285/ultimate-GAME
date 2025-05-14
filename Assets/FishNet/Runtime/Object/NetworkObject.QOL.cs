@@ -317,13 +317,13 @@ namespace FishNet.Object
         }
 
         [Obsolete("Use SetLocalOwnership(NetworkConnection, bool).")]
-        public void SetLocalOwnership(NetworkConnection caller) => SetLocalOwnership(caller, includeNested: false);
+        public void SetLocalOwnership(NetworkConnection caller) => SetLocalOwnership(caller, recursive: false);
 
         /// <summary>
         /// Takes ownership of this object and child network objects, allowing immediate control.
         /// </summary>
         /// <param name="caller">Connection to give ownership to.</param>
-        public void SetLocalOwnership(NetworkConnection caller, bool includeNested)
+        public void SetLocalOwnership(NetworkConnection caller, bool recursive)
         {
             NetworkConnection prevOwner = Owner;
             SetOwner(caller);
@@ -333,12 +333,12 @@ namespace FishNet.Object
             for (int i = 0; i < count; i++)
                 NetworkBehaviours[i].OnOwnershipClient_Internal(prevOwner);
 
-            if (includeNested)
+            if (recursive)
             {
-                List<NetworkObject> allNested = RetrieveNestedNetworkObjects(recursive: true);
+                List<NetworkObject> allNested = GetNetworkObjects(GetNetworkObjectOption.AllNestedRecursive);
 
                 foreach (NetworkObject nob in allNested)
-                    nob.SetLocalOwnership(caller, includeNested: true);
+                    nob.SetLocalOwnership(caller, recursive: true);
 
                 CollectionCaches<NetworkObject>.Store(allNested);
             }

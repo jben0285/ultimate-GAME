@@ -112,7 +112,6 @@ MonoBehaviour:
   explosionTestPrefab: {fileID: 0}
   gunExplosionTestPrefab: {fileID: 0}
   BNM: {fileID: 0}
-  mainCamera: {fileID: 0}
   GameManager: {fileID: 0}
   UIBlocker: []
   reloadReticle: {fileID: 0}
@@ -129,6 +128,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <IsNested>k__BackingField: 1
+  WasActiveDuringEdit: 1
+  WasActiveDuringEdit_Set1: 1
   <ComponentIndex>k__BackingField: 1
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
@@ -460,12 +461,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <IsNested>k__BackingField: 0
+  WasActiveDuringEdit: 0
+  WasActiveDuringEdit_Set1: 1
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
   NetworkBehaviours:
-  - {fileID: 0}
   - {fileID: 4641140443300208011}
+  - {fileID: 3010398664075093641}
   - {fileID: 1349847835596820652}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects:
@@ -492,7 +495,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 16
+  <PrefabId>k__BackingField: 14
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 13967948740332126613
   <SceneId>k__BackingField: 0
@@ -536,7 +539,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62d86699f485a4821a6784582473ced5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 1
+  _componentIndexCache: 0
   _addedNetworkObject: {fileID: 7686050630455131301}
   _networkObjectCache: {fileID: 7686050630455131301}
   mainCamera: {fileID: 0}
@@ -555,9 +558,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6365d54a28afb8e41ac05b4585641110, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 1
   _addedNetworkObject: {fileID: 7686050630455131301}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 7686050630455131301}
   CMM: {fileID: 0}
   Visor: {fileID: 5902412074174482157}
   _moveSpeed: 1
@@ -704,15 +707,6 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 7686050630455131301}
   currentAmmoCount: 0
   totalBulletCount: 0
-  weapons:
-    NetworkManager: {fileID: 0}
-    NetworkBehaviour: {fileID: 0}
-    _value:
-    - {fileID: 1434143236953442282}
-  selectedWeapon:
-    NetworkManager: {fileID: 0}
-    NetworkBehaviour: {fileID: 0}
-    _value: 0
   weaponSpawnPoint: {fileID: 0}
   nearbyPurchasePoint: {fileID: 0}
   money: 0
