@@ -48,7 +48,7 @@ namespace Player
         private float _currentYaw     = 0f;
         private float _currentPitch   = 0f;
         private float _lastSentYaw    = 0f;
-        private const float YawSyncThreshold = 0.1f;
+        private const float YawSyncThreshold = 1f;
 
         #region Movement Data Structs
         private struct MovementData : IReplicateData
