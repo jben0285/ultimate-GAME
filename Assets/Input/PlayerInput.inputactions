@@ -51,7 +51,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Grapple",
+                    "name": "Ability",
                     "type": "Button",
                     "id": "a52f71ac-2c6b-4063-94c6-682f57cf12cf",
                     "expectedControlType": "",
@@ -163,11 +163,11 @@
                 {
                     "name": "",
                     "id": "905ae246-5052-4c30-8e5d-2aeaf73ba9e8",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Grapple",
+                    "action": "Ability",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -906,11 +906,14 @@ MonoBehaviour:
   _componentIndexCache: 0
   _addedNetworkObject: {fileID: 6338806279402370395}
   _networkObjectCache: {fileID: 6338806279402370395}
+  _playerType: 0
   _inputActionAsset: {fileID: -944628639613478452, guid: 1be11cb0340e86c4cbcc93c4a1b8932b, type: 3}
   _moveForce: 30
   _jumpForce: 12
-  _grappleForce: 12
+  _abilityForce: 12
   _lookSensitivity: 0.1
+  _abilityCooldownResetValue: 250
+  abilityCoolDownCounter: 0
   useRPCYawSync: 1
   feetOffset: {x: 0, y: -0.5, z: 0}
   feetRadius: 0.5

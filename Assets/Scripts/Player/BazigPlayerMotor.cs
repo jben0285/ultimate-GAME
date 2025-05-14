@@ -11,7 +11,15 @@ namespace Player
 {
     public class BazigPlayerMotor : NetworkBehaviour
     {
+        public enum PlayerType
+        {
+            Assault,
+            Support,
+            Assasin
+        }
 
+        [Header("Player Type")]
+        [SerializeField] private PlayerType _playerType;
 
         #region Serialized Fields & Config
         [Header("Input")]
@@ -20,11 +28,16 @@ namespace Player
         [Header("Movement Settings")]
         [SerializeField] private float _moveForce       = 30f;
         [SerializeField] private float _jumpForce       = 12f;
-        [SerializeField] private float _grappleForce    = 12f;
+        [SerializeField] private float _abilityForce    = 12f;
         [SerializeField] private float _lookSensitivity = 0.1f;
 
+        [SerializeField] private int _abilityCooldownResetValue;
+        [SerializeField]
+        private int abilityCoolDownCounter;
         [SerializeField]
         private bool useRPCYawSync;
+
+        
 
         [Header("Ground Check")]
         [SerializeField] private Vector3 feetOffset;
@@ -43,7 +56,7 @@ namespace Player
         private InputAction _horizontalAction;
         private InputAction _verticalAction;
         private InputAction _jumpAction;
-        private InputAction _grappleAction;
+        private InputAction _abilityAction;
         private InputAction _pitchAction;
         private InputAction _yawAction;
 
@@ -59,18 +72,19 @@ namespace Player
             public readonly float Horizontal;
             public readonly float Vertical;
             public readonly bool  Jump;
-            public readonly bool  Grapple;
+            public readonly bool  Ability;
 
             public readonly bool  SpeedBoost;
             public readonly int   SpeedBoostCounter;
 
+
             private uint _tick;
-            public MovementData(float horizontal, float vertical, bool jump, bool grapple, bool speedBoost, int speedBoostCounter)
+            public MovementData(float horizontal, float vertical, bool jump, bool ability, bool speedBoost, int speedBoostCounter)
             {
                 Horizontal        = horizontal;
                 Vertical          = vertical;
                 Jump              = jump;
-                Grapple           = grapple;
+                Ability           = ability;
                 SpeedBoost        = speedBoost;
                 SpeedBoostCounter = speedBoostCounter;
                 _tick             = 0u;
@@ -84,12 +98,14 @@ namespace Player
         {
             public PredictionRigidbody PredictionRigidbody;
             public readonly bool       SpeedBoost;
+            public readonly int       AbilityCooldown;
 
             private uint _tick;
-            public ReconcileData(PredictionRigidbody prb, bool speedBoost)
+            public ReconcileData(PredictionRigidbody prb, bool speedBoost, int abilityCooldown)
             {
                 PredictionRigidbody = prb;
                 SpeedBoost          = speedBoost;
+                AbilityCooldown     = abilityCooldown;
                 _tick               = 0u;
             }
             public void Dispose() { }
@@ -117,14 +133,14 @@ namespace Player
             _horizontalAction = map.FindAction("Horizontal");
             _verticalAction   = map.FindAction("Vertical");
             _jumpAction       = map.FindAction("Jump");
-            _grappleAction    = map.FindAction("Grapple");
+            _abilityAction    = map.FindAction("Ability");
             _pitchAction      = map.FindAction("Pitch");
             _yawAction        = map.FindAction("Yaw");
 
             _horizontalAction.Enable();
             _verticalAction.Enable();
             _jumpAction.Enable();
-            _grappleAction.Enable();
+            _abilityAction.Enable();
             _pitchAction.Enable();
             _yawAction.Enable();
         }
@@ -138,7 +154,7 @@ namespace Player
             _horizontalAction.Disable();
             _verticalAction.Disable();
             _jumpAction.Disable();
-            _grappleAction.Disable();
+            _abilityAction.Disable();
             _pitchAction.Disable();
             _yawAction.Disable();
         }
@@ -186,13 +202,13 @@ namespace Player
             float h = _horizontalAction.ReadValue<float>();
             float v = _verticalAction.ReadValue<float>();
             bool groundJump = _jumpAction.IsPressed() && IsGrounded(out _);
-            bool grap = _grappleAction.IsPressed();
+            bool ab = _abilityAction.IsPressed();
 
             // speedBoost fields if you have them
             bool sb = false;
             int  sbc = 0;
 
-            return new MovementData(h, v, groundJump, grap, sb, sbc);
+            return new MovementData(h, v, groundJump, ab, sb, sbc);
         }
 
         private bool IsGrounded(out RaycastHit hit)
@@ -215,7 +231,11 @@ namespace Player
             }
             Debug.Log($"[Replicate] on {(IsOwner? "Owner" : IsServer? "Server" : "Spectator")} tick {base.TimeManager.LocalTick} state={state}");
 
-            // if (_predictionRigidbody == null) return;
+            if (_predictionRigidbody == null) return;
+
+
+            HandleAbilityReplicate(data.Ability, _predictionRigidbody);
+
 
             Vector3 forward = transform.forward;
             Vector3 right   = transform.right;
@@ -225,33 +245,53 @@ namespace Player
             if (data.Jump)
                 _predictionRigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
 
-            if (data.Grapple)
-                _predictionRigidbody.AddForce(_headObject.forward * _grappleForce, ForceMode.Impulse);
-
+       
             _predictionRigidbody.AddForce(Physics.gravity, ForceMode.Acceleration);
 
             // Run the internal simulation step
             _predictionRigidbody.Simulate();
         }
 
-        public override void CreateReconcile()
+
+
+    private void HandleAbilityReplicate(bool ability, PredictionRigidbody prb)
+    {
+        if (abilityCoolDownCounter < _abilityCooldownResetValue)
+            abilityCoolDownCounter++;
+
+        // 2) If they pressed the ability button AND they’re off cooldown
+        if (ability && abilityCoolDownCounter >= _abilityCooldownResetValue)
         {
-            var rd = new ReconcileData(_predictionRigidbody, false);
-            ReconcileState(rd);
+            ActivateAbility(_playerType);
+            abilityCoolDownCounter = 0;  // reset
         }
+    }
+
+    public override void CreateReconcile()
+    {
+        var rd = new ReconcileData(_predictionRigidbody, false, abilityCoolDownCounter);
+        ReconcileState(rd);
+    }
 
         [Reconcile]
-private void ReconcileState(ReconcileData data, Channel channel = Channel.Unreliable)
-{
+    private void ReconcileState(ReconcileData data, Channel channel = Channel.Unreliable)
+    {
+        //DO NOT REMOVE THIS ROTATION ASSIGNMENT.
         Quaternion savedBodyRot = transform.rotation;
+        abilityCoolDownCounter = data.AbilityCooldown;
 
-    // Only snap position & velocity—leave rotation entirely client-authoritative
-    _predictionRigidbody.Reconcile(
-        data.PredictionRigidbody
-    );
+        _predictionRigidbody.Reconcile(
+            data.PredictionRigidbody
+        );
         transform.rotation = savedBodyRot;
 
-}
+    }
+
+
+    private void ActivateAbility(PlayerType playerType)
+    {
+
+    }
 
         #region Camera Look (Client-Only)
         private void Update()
