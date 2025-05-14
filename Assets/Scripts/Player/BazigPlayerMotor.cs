@@ -241,12 +241,17 @@ namespace Player
         }
 
         [Reconcile]
-        private void ReconcileState(ReconcileData data, Channel channel = Channel.Unreliable)
-        {
-            Debug.Log($"[Reconcile] on {(IsOwner? "Owner" : IsServer? "Server" : "Spectator")} tick {base.TimeManager.LocalTick}");
-            // Reconcile position & velocity, but leave rotation alone
-            _predictionRigidbody.Reconcile(data.PredictionRigidbody);
-        }
+private void ReconcileState(ReconcileData data, Channel channel = Channel.Unreliable)
+{
+        Quaternion savedBodyRot = transform.rotation;
+
+    // Only snap position & velocity—leave rotation entirely client-authoritative
+    _predictionRigidbody.Reconcile(
+        data.PredictionRigidbody
+    );
+        transform.rotation = savedBodyRot;
+
+}
 
         #region Camera Look (Client-Only)
         private void Update()

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using FishNet.Connection;
 using FishNet.Managing.Server;
 using UnityEngine;
+
 #pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FishNet.Object
@@ -274,7 +275,7 @@ namespace FishNet.Object
         {
             if (PredictionSmoother == null)
                 return;
-            float teleportT = (_enableTeleport) ? _teleportThreshold : MoveRatesCls.UNSET_VALUE;
+            float teleportT = (_enableTeleport) ? _teleportThreshold : MoveRates.UNSET_VALUE;
             PredictionSmoother.InitializeNetworked(this, _graphicalObject, _detachGraphicalObject, teleportT, (float)TimeManager.TickDelta, _ownerInterpolation, _ownerSmoothedProperties, _spectatorInterpolation, _spectatorSmoothedProperties, _adaptiveInterpolation);
         }
 
@@ -312,7 +313,8 @@ namespace FishNet.Object
 
             if (!asServer)
             {
-                TimeManager.OnUpdate -= TimeManager_Update;
+                if (TimeManager != null)
+                    TimeManager.OnUpdate -= TimeManager_Update;
                 if (PredictionSmoother != null)
                     PredictionSmoother.OnStopClient();
             }

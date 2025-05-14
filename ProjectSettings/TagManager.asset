@@ -8,6 +8,7 @@ TagManager:
   - TrackingObject
   - Actors
   - LocalPlayer
+  - LocalClient
   layers:
   - Default
   - TransparentFX

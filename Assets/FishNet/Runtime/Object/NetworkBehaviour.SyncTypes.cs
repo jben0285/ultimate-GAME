@@ -10,6 +10,7 @@ using GameKit.Dependencies.Utilities;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using FishNet.Serializing.Helping;
+using FishNet.Utility.Extension;
 using UnityEngine;
 
 namespace FishNet.Object
@@ -20,7 +21,7 @@ namespace FishNet.Object
         /// <summary>
         /// Used to generate data sent from synctypes.
         /// </summary>
-        private struct SyncTypeWriter : IResettable
+        private struct SyncTypeWriter
         {
             /// <summary>
             /// Writers for each channel.
@@ -38,19 +39,8 @@ namespace FishNet.Object
                 for (int i = 0; i < Writers.Count; i++)
                     Writers[i].Clear();
             }
-
-            public void ResetState()
-            {
-                if (Writers != null)
-                {
-                    foreach (PooledWriter writer in Writers)
-                        writer.Store();
-                }
-
-                CollectionCaches<PooledWriter>.StoreAndDefault(ref Writers);
-            }
-
-            public void InitializeState()
+            
+            public void Initialize()
             {
                 Writers = CollectionCaches<PooledWriter>.RetrieveList();
                 for (int i = 0; i < TransportManager.CHANNEL_COUNT; i++)
@@ -63,7 +53,7 @@ namespace FishNet.Object
         /// <summary>
         /// Writers for syncTypes. A writer will exist for every ReadPermission type.
         /// </summary>
-        private Dictionary<ReadPermission, SyncTypeWriter> _syncTypeWriters;
+        private static Dictionary<ReadPermission, SyncTypeWriter> _syncTypeWriters = new();
         /// <summary>
         /// SyncTypes within this NetworkBehaviour.
         /// </summary>
@@ -134,33 +124,22 @@ namespace FishNet.Object
         /// </summary>
         private void SyncTypes_Preinitialize(bool asServer)
         {
-            if (asServer)
-            {
-                if (!_initializedOnceServer)
-                {
-                    /* Build collection of read permissions. _readPermissions is static
-                     * so this only needs to be done once. SyncTypeWriters build using _readPermissions
-                     * but to avoid iterating enumValues on every initialization, we cache the readPermissions. */
-                    if (_readPermissions == null)
-                    {
-                        _readPermissions = CollectionCaches<ReadPermission>.RetrieveList();
-                        System.Array arr = System.Enum.GetValues(typeof(ReadPermission));
-                        foreach (ReadPermission rp in arr)
-                            _readPermissions.Add(rp);
-                    }
+            if (_networkObjectCache.DoubleLogic(asServer))
+                return;
 
-                    if (_syncTypeWriters == null)
-                    {
-                        _syncTypeWriters = ResettableT2CollectionCaches<ReadPermission, SyncTypeWriter>.RetrieveDictionary();
-                        foreach (ReadPermission rp in _readPermissions)
-                            _syncTypeWriters[rp] = ResettableObjectCaches<SyncTypeWriter>.Retrieve();
-                    }
-                }
-                //Already initialized at once point, reset syncType writers.
-                else
+            //This only runs once since SyncTypeWriters are static.
+            if (_syncTypeWriters.Count == 0)
+            {
+                List<ReadPermission> readPermissions = new();
+                System.Array arr = System.Enum.GetValues(typeof(ReadPermission));
+                foreach (ReadPermission rp in arr)
+                    readPermissions.Add(rp);
+
+                foreach (ReadPermission rp in readPermissions)
                 {
-                    foreach (SyncTypeWriter stw in _syncTypeWriters.Values)
-                        stw.Reset();
+                    SyncTypeWriter syncTypeWriter = new();
+                    syncTypeWriter.Initialize();
+                    _syncTypeWriters[rp] = syncTypeWriter;
                 }
             }
 
@@ -168,7 +147,7 @@ namespace FishNet.Object
              * callbacks which occur that the user or even we may implement
              * during the initialization. */
             foreach (SyncBase sb in _syncTypes.Values)
-                sb.PreInitialize(_networkObjectCache.NetworkManager);
+                sb.PreInitialize(_networkObjectCache.NetworkManager, asServer);
         }
 
 
@@ -538,7 +517,6 @@ namespace FishNet.Object
         private void SyncTypes_OnDestroy()
         {
             CollectionCaches<uint, SyncBase>.StoreAndDefault(ref _syncTypes);
-            ResettableT2CollectionCaches<ReadPermission, SyncTypeWriter>.StoreAndDefault(ref _syncTypeWriters);
         }
     }
 }

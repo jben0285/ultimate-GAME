@@ -58,6 +58,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -154,19 +157,16 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   explosionDecalScale: 1
-  explosionParticlePrefab: {fileID: 1452802236095479681, guid: 610718f934be4d047af5acd3b62fe5a4,
-    type: 3}
+  explosionParticlePrefab: {fileID: 1452802236095479681, guid: 610718f934be4d047af5acd3b62fe5a4, type: 3}
   playerRB: {fileID: 0}
   tank_barrel_animator: {fileID: 0}
   turretVision: {fileID: 0}
   bulletSpawn: {fileID: 4312389509612070445}
-  projectileContainerPrefab: {fileID: 4283680761369552206, guid: 3f671c4d6d7ef7642a1ee0f8a5d2c738,
-    type: 3}
+  projectileContainerPrefab: {fileID: 4283680761369552206, guid: 3f671c4d6d7ef7642a1ee0f8a5d2c738, type: 3}
   crosshair: {fileID: 0}
   explosionTestPrefab: {fileID: 0}
   gunExplosionTestPrefab: {fileID: 0}
   BNM: {fileID: 0}
-  mainCamera: {fileID: 0}
   GameManager: {fileID: 0}
   UIBlocker: []
   reloadReticle: {fileID: 0}
@@ -183,6 +183,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <IsNested>k__BackingField: 0
+  WasActiveDuringEdit: 0
+  WasActiveDuringEdit_Set1: 1
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
@@ -198,7 +200,6 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedValusSet: 1
   NetworkObserver: {fileID: 0}
   _enablePrediction: 0
   _predictionType: 0
@@ -220,7 +221,8 @@ MonoBehaviour:
   SerializedTransformProperties:
     Position: {x: 0, y: 0, z: 0}
     Rotation: {x: 0, y: 0, z: 0, w: 1}
-    LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+    Scale: {x: 0.5, y: 0.5, z: 0.5}
+    IsValid: 1
 --- !u!82 &6676346455250567370
 AudioSource:
   m_ObjectHideFlags: 0
@@ -231,7 +233,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 89f20c1f11f6897499ce1d6a5e3f6b6d, type: 3}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 89f20c1f11f6897499ce1d6a5e3f6b6d, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -406,6 +409,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -489,6 +495,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

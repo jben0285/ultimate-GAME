@@ -87,6 +87,7 @@ namespace FishNet.Object
             SceneId = NetworkObject.UNSET_SCENEID_VALUE;
         }
 
+        
 #if UNITY_EDITOR
         private void OnApplicationQuit()
         {
@@ -96,23 +97,22 @@ namespace FishNet.Object
         /// <summary>
         /// Tries to generate a SceneIds for NetworkObjects in a scene.
         /// </summary>
-        internal static void CreateSceneId(UnityEngine.SceneManagement.Scene scene, bool force, out int changed, out int found)
+        internal static List<NetworkObject> CreateSceneId(UnityEngine.SceneManagement.Scene scene, bool force, out int changed)
         {
             changed = 0;
-            found = 0;
+
             if (Application.isPlaying)
-                return;
+                return new();
             if (!scene.IsValid())
-                return;
+                return  new();
             if (!scene.isLoaded)
-                return;
+                return  new();
 
             HashSet<ulong> setIds = new();
             uint scenePathHash = scene.path.GetStableHashU32();
             List<NetworkObject> sceneNobs = new();
 
-            Scenes.GetSceneNetworkObjects(scene, false, false, false, ref sceneNobs);
-            found = sceneNobs.Count;
+            Scenes.GetSceneNetworkObjects(scene, firstOnly: false, errorOnDuplicates: false, ignoreUnsetSceneIds: false, ref sceneNobs);
             System.Random rnd = new();
 
             //NetworkObjects which need their Ids rebuilt.
@@ -123,8 +123,8 @@ namespace FishNet.Object
                 bool canGenerate = (!item.IsSceneObject || !setIds.Add(item.SceneId));
                 /* If an Id has not been generated yet or if it
                  * already exist then rebuild for this object. */
-                 if (force || canGenerate)
-                 {
+                if (force || canGenerate)
+                {
                     item.SceneId = NetworkObject.UNSET_SCENEID_VALUE;
                     rebuildingNobs.Add(item);
                 }
@@ -149,6 +149,8 @@ namespace FishNet.Object
                 item.SceneId = nextSceneId;
                 EditorUtility.SetDirty(item);
             }
+
+            return sceneNobs;
         }
 
         /// <summary>
@@ -181,7 +183,7 @@ namespace FishNet.Object
                     EditorUtility.IsPersistent(this))
                     //If here this is a sceneObject, but sceneId is not set.
                     if (!IsSceneObject)
-                        throw new InvalidOperationException($"Networked GameObject {gameObject.name} in scene {gameObject.scene.path} is missing a SceneId. Open the scene, select the Fish-Networking menu, and choose Rebuild SceneIds. If the problem persist ensures {gameObject.name} does not have any missing script references on it's prefab or in the scene. Also ensure that you have any prefab changes for the object applied.");
+                        throw new InvalidOperationException($"Networked GameObject {gameObject.name} in scene {gameObject.scene.path} is missing a SceneId. Use the Fish-Networking menu -> Utility -> Reserialize NetworkObjects > Reserialize Scenes. If the problem persist ensures {gameObject.name} does not have any missing script references on it's prefab or in the scene. Also ensure that you have any prefab changes for the object applied.");
             }
             //If not building check to rebuild sceneIds this for object and the scene its in.
             else
@@ -198,7 +200,7 @@ namespace FishNet.Object
 
                 _lastSceneIdAutomaticRebuildTime = realtime;
 
-                CreateSceneId(gameObject.scene, force, out _, out _);
+                CreateSceneId(gameObject.scene, force, out _);
             }
         }
 
@@ -225,11 +227,6 @@ namespace FishNet.Object
             }
 
             return false;
-        }
-
-        private void ReferenceIds_OnValidate()
-        {
-            CreateSceneId(force: false);
         }
 
         private void ReferenceIds_Reset()

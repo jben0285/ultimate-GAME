@@ -281,7 +281,7 @@ namespace FishNet.Object
         /// Gives ownership to newOwner.
         /// </summary>
         
-        public void GiveOwnership(NetworkConnection newOwner) => _networkObjectCache.GiveOwnership(newOwner, asServer: true, includeNested: false);
+        public void GiveOwnership(NetworkConnection newOwner) => _networkObjectCache.GiveOwnership(newOwner, asServer: true, recursive: false);
 
         /// <summary>
         /// Gives ownership to newOwner.
