@@ -907,7 +907,7 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 6338806279402370395}
   _networkObjectCache: {fileID: 6338806279402370395}
   _playerType: 0
-  _inputActionAsset: {fileID: -944628639613478452, guid: 1be11cb0340e86c4cbcc93c4a1b8932b, type: 3}
+  _inputActionAsset: {fileID: -944628639613478452, guid: e2835090c3e74574b967eee812a6fe90, type: 3}
   _moveForce: 30
   _jumpForce: 12
   _abilityForce: 12
