@@ -688,16 +688,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cf5ae46643f68241aa1f7cd2eea906c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
-  _addedNetworkObject: {fileID: 6338806279402370395}
-  _networkObjectCache: {fileID: 0}
-  StartingHealth: 150
-  spawnPoint: {fileID: 0}
-  CMM: {fileID: 0}
-  BPM: {fileID: 0}
-  bloodEffect: {fileID: 0}
---- !u!1001 &216247336708981987
-PrefabInstance:
+  _componentIndexCache: 2
+  _addedNetworkObject: {fileID: 7978157940674728298}
+  _networkObjectCache: {fileID: 7978157940674728298}
+  grappleOrigin: {fileID: 0}
+  maxDistance: 60
+  pullAcceleration: 30
+  stopDistance: 2
+  fireKey: 324
+--- !u!1 &1832773802723080362
+GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}

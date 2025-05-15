@@ -119,8 +119,6 @@ namespace Player {
         [ObserversRpc(RunLocally = true)]
         public void TakeDamageObservers(PlayerHealth ownerHealth, float damage)
         {
-            Debug.Log("health: " + _health.Value);
-
             Vector3 randomOffset = new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(-0.5f, 0.5f));
             GameObject blood = GameObject.Instantiate(bloodEffect, transform.position + randomOffset, Quaternion.identity);
             Destroy(blood, 2f);
