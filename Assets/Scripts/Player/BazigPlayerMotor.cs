@@ -383,22 +383,6 @@ namespace Player
             
         }
 
-        public TextMeshProUGUI abilityCooldownText;
-        private void UpdateCooldownUI(){
-            if(_abilityActive)
-            {
-                abilityCooldownText.text = "Active";
-            }
-            else if(abilityCoolDownCounter < _abilityCooldownResetValue)
-            {
-                float timeRemaining = (_abilityCooldownResetValue - abilityCoolDownCounter) / Application.targetFrameRate;
-                    abilityCooldownText.text = Mathf.CeilToInt(timeRemaining).ToString();
-            }
-            else
-            {
-                abilityCooldownText.text = "Ready";
-            }
-        }
         
 
         public override void CreateReconcile()
@@ -489,7 +473,6 @@ namespace Player
         {
             if (!IsOwner) return;
             HandleMouseLook();
-            UpdateCooldownUI();
         }
 
         private void HandleMouseLook()
