@@ -10,7 +10,6 @@ using FishNet;
 using FishNet.Object.Prediction;
 using FishNet.Transporting;
 using Bootstrap;
-using Unity.VisualScripting.FullSerializer;
 
 
 //script responsible for handling every aspect of the player shooting.
@@ -24,6 +23,7 @@ namespace Weapons
     public class FirearmController : NetworkBehaviour
     {
         public bool inHand;
+        [SerializeField] private AudioSource fireAudioSource;
 
         public string _weaponName;
         public enum FireState
@@ -313,6 +313,9 @@ namespace Weapons
             //call the observer fire function. handles stuff like making the bullet trail and playing
             //sound effects
 
+            // Play the firing sound once
+            // Observer functionality to notify other clients about the firing event
+            ObserverFire(fd);
             //on the server side
             //ObserverFire(fireCont);
 
@@ -503,15 +506,15 @@ namespace Weapons
 
         }
 
-
-        // [ObserversRpc(RunLocally = false)]
-        // public void ObserverFire(PlayerFireController fireCont, ProjectileRealCollision master, Vector2 direction)
-        // {
-        //     Debug.LogError("played sound and stuff");
-        //     //play sound for other players
-        //     fireCont.GetComponent<AudioSource>().Play();
-        // }
-
+        [ObserversRpc(RunLocally = true)]
+        private void ObserverFire(FireData fd)
+        {
+            if (fireAudioSource != null)
+            {
+            Debug.Log("ObserverFire called");
+                fireAudioSource.PlayOneShot(fireAudioSource.clip);
+            }
+        }
 
     }
 

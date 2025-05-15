@@ -421,12 +421,13 @@ namespace Player
         private void DeactivateAbility()
         {
             _abilityActive = false;
+            abilityDurationCounter = _abilityDurationResetValue;
         switch (_playerType)
         {
             case PlayerType.Assault:
                 Debug.Log("Deactivating Assault ability");
                 // Add logic to deactivate Assault ability if needed
-                RpcUpdateAssaultWeaponStats(4, 250);
+                RpcUpdateAssaultWeaponStats(6, 250);
                 break;
 
             case PlayerType.Support:
@@ -458,7 +459,7 @@ namespace Player
             {
                 case PlayerType.Assault:
                     Debug.Log("Activating Assault ability");
-                    RpcUpdateAssaultWeaponStats(2, 100);
+                    RpcUpdateAssaultWeaponStats(4, 100);
                     // _firearmController.ActivateAssaultAbility();
                     break;
 
