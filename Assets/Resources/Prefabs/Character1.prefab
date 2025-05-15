@@ -2025,6 +2025,7 @@ GameObject:
   - component: {fileID: 6338806279402370395}
   - component: {fileID: 6135081210216163785}
   - component: {fileID: 5277177848567270629}
+  - component: {fileID: 6192053205467077392}
   m_Layer: 6
   m_Name: Character1
   m_TagString: OtherPlayer
@@ -2110,7 +2111,7 @@ MonoBehaviour:
   NetworkObserver: {fileID: 0}
   _enablePrediction: 1
   _predictionType: 1
-  _graphicalObject: {fileID: 5838753668493097965}
+  _graphicalObject: {fileID: 0}
   _detachGraphicalObject: 0
   _enableStateForwarding: 1
   _networkTransform: {fileID: 0}
@@ -2195,6 +2196,40 @@ MonoBehaviour:
   _sprintStamina: 0
   _sprintStaminaDrainPerTick: 2
   _sprintStaminaRegenPerTick: 1
+  _maxJumps: 2
+--- !u!114 &6192053205467077392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8551286628664545005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 453481867b26f7c43b5bf38802a5f50e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 6338806279402370395}
+  _networkObjectCache: {fileID: 0}
+  _initializationSettings:
+    TargetTransform: {fileID: 2072714157316208058}
+    DetachOnStart: 0
+    AttachOnStop: 0
+  _controllerMovementSettings:
+    EnableTeleport: 1
+    TeleportThreshold: 0
+    AdaptiveInterpolationValue: 4
+    InterpolationValue: 2
+    SmoothedProperties: 4294967295
+    SnapNonSmoothedProperties: 0
+  _spectatorMovementSettings:
+    EnableTeleport: 0
+    TeleportThreshold: 0
+    AdaptiveInterpolationValue: 0
+    InterpolationValue: 2
+    SmoothedProperties: 4294967295
+    SnapNonSmoothedProperties: 0
 --- !u!1 &8640994152749110795
 GameObject:
   m_ObjectHideFlags: 0
