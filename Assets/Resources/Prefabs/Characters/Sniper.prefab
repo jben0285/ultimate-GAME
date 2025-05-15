@@ -572,14 +572,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3977535636380928171}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0.35820365, w: 0.9336435}
+  m_LocalRotation: {x: -0, y: -0, z: 0.008574788, w: 0.9999632}
   m_LocalPosition: {x: -1.9947455, y: 0.6606597, z: 0.1260544}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6689922505003648986}
   m_Father: {fileID: 8574658116855844091}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -41.98}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0.983}
 --- !u!1 &4011091029095691435
 GameObject:
   m_ObjectHideFlags: 0
@@ -1269,7 +1269,7 @@ Transform:
   m_GameObject: {fileID: 6026683417102465529}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.5116456, y: -0.45015967, z: -0.8326544}
+  m_LocalPosition: {x: 2.511646, y: -0.4501597, z: -0.8326544}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1483,6 +1483,7 @@ GameObject:
   - component: {fileID: 4381682692505510858}
   - component: {fileID: 6476439707145823735}
   - component: {fileID: 5999925718395299831}
+  - component: {fileID: 7901557064941683617}
   m_Layer: 6
   m_Name: Rifle
   m_TagString: Untagged
@@ -1522,10 +1523,12 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 6476439707145823735}
   _networkObjectCache: {fileID: 6476439707145823735}
   inHand: 1
+  fireAudioSource: {fileID: 5999925718395299831}
+  reloadAudioSource: {fileID: 7901557064941683617}
   _weaponName: Rifle
   fireState: 1
   fireDelayCounter: 0
-  fireCounterReset: 75
+  fireCounterReset: 100
   cycleDelayCounter: 0
   cycleCounterReset: 999
   startedReloading: 0
@@ -1533,7 +1536,7 @@ MonoBehaviour:
   maxMagazineCount: 1
   reserveCount: 9999999
   damage: 5
-  projSpeed: 10
+  projSpeed: 400
   ricochetAngle: 0
   targetLayerMask:
     serializedVersion: 2
@@ -1542,7 +1545,7 @@ MonoBehaviour:
   explosionParticlePrefab: {fileID: 1452802236095479681, guid: 610718f934be4d047af5acd3b62fe5a4, type: 3}
   spread: 1
   playerRB: {fileID: 5752979564089483551}
-  tank_barrel_animator: {fileID: 0}
+  tank_barrel_animator: {fileID: 1672421362380600231}
   turretVision: {fileID: 0}
   bulletSpawn: {fileID: 2029457459397892515}
   _GraphicalWeapon: {fileID: 0}
@@ -1618,8 +1621,105 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 89f20c1f11f6897499ce1d6a5e3f6b6d, type: 3}
+  m_audioClip: {fileID: 8300000, guid: bf278d0c0ef2ca846b075e72295d315f, type: 3}
+  m_Resource: {fileID: 8300000, guid: bf278d0c0ef2ca846b075e72295d315f, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!82 &7901557064941683617
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6624558741116586664}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 0f2a1a5d5e6e1c34ab9ad8e6de990180, type: 3}
+  m_Resource: {fileID: 8300000, guid: 0f2a1a5d5e6e1c34ab9ad8e6de990180, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -1802,6 +1902,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8177439128561074675}
+  - component: {fileID: 1672421362380600231}
   m_Layer: 0
   m_Name: AWMOptimizedOliveURP
   m_TagString: Untagged
@@ -1841,6 +1942,28 @@ Transform:
   - {fileID: 8574658116855844091}
   m_Father: {fileID: 5365250038590222996}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &1672421362380600231
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7959204715254108427}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 404a2ef00c8cab1438ec46c03d8baa4d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &8004037832147634611
 GameObject:
   m_ObjectHideFlags: 0

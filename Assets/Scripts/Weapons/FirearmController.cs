@@ -24,6 +24,7 @@ namespace Weapons
     {
         public bool inHand;
         [SerializeField] private AudioSource fireAudioSource;
+        [SerializeField] private AudioSource reloadAudioSource;
 
         public string _weaponName;
         public enum FireState
@@ -313,7 +314,8 @@ namespace Weapons
             //call the observer fire function. handles stuff like making the bullet trail and playing
             //sound effects
 
-            // Play the firing sound once
+
+
             // Observer functionality to notify other clients about the firing event
             ObserverFire(fd);
             //on the server side
@@ -370,6 +372,19 @@ namespace Weapons
             //subtract one from mags
             magazineCount -= 1;
 
+            // Start coroutine to trigger 'rack' after 1 second
+            if (tank_barrel_animator != null)
+                StartCoroutine(RackAfterDelay());
+        }
+
+        private System.Collections.IEnumerator RackAfterDelay()
+        {
+            yield return new WaitForSeconds(0.25f);
+            if (tank_barrel_animator != null)
+                tank_barrel_animator.SetTrigger("rack");
+            yield return new WaitForSeconds(.65f);
+            reloadAudioSource.Play();
+
         }
 
         private void SetReticle()
@@ -389,7 +404,7 @@ namespace Weapons
 
             ppc.Initialize(lfd._bulletSpawnPosition, lfd._direction, lfd._projSpeed, lfd._maxDistance, lfd._damage, targetLayerMask);
             ServerManager.Spawn(spawnedProjectile, conn);
-            GetComponent<AudioSource>().Play();
+            // GetComponent<AudioSource>().Play();
             // GameObject firedGunDecoration = Instantiate(gunExplosionTestPrefab, bulletSpawn.position, bulletSpawn.rotation);
             // ServerManager.Spawn(firedGunDecoration);
         }
@@ -488,12 +503,6 @@ namespace Weapons
             reloadReticle.fillAmount = (float)magazineCount / maxMagazineCount;
         }
 
-        //would be no less than a bitch to get a decoration projectile to be rendered on the client
-        //before the server, ensuring that both randomly generated innacuracies match.
-        //possible solution: generate random innacuracy on client, pass to server
-        //dont have the skills for this at the moment, because this would require making the
-        //projectiles NON-networked, which thus would require re-doing the entire impact system.
-        //AHHA I DID ITTT
         public void PlayerFire()
         {
 
@@ -506,7 +515,7 @@ namespace Weapons
 
         }
 
-        [ObserversRpc(RunLocally = true)]
+        [ObserversRpc(RunLocally = true, ExcludeOwner = true)]
         private void ObserverFire(FireData fd)
         {
             if (fireAudioSource != null)

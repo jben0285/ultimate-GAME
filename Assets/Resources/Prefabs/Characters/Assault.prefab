@@ -309,6 +309,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 0}
   inHand: 1
   fireAudioSource: {fileID: 5999925718395299831}
+  reloadAudioSource: {fileID: 0}
   _weaponName: Rifle
   fireState: 1
   fireDelayCounter: 1
@@ -320,7 +321,7 @@ MonoBehaviour:
   maxMagazineCount: 50
   reserveCount: 9999599
   damage: 5
-  projSpeed: 5
+  projSpeed: 75
   ricochetAngle: 0
   targetLayerMask:
     serializedVersion: 2

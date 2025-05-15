@@ -13,6 +13,7 @@ using System.Collections;
 using UnityEngine.UI;
 using TMPro;
 using Player;
+using FishNet;
 
 namespace Bootstrap
 {
@@ -293,7 +294,10 @@ namespace Bootstrap
                 ClientMenuManager CMM = activeClient.GetComponent<ClientMenuManager>();
                 activePlayer.GetComponent<BazigPlayerMotor>().CMM = CMM;
                 CMM._health = activePlayer.GetComponent<PlayerHealth>();
-                
+                if(!conn.IsHost)
+                {
+                    InstanceFinder.NetworkManager.TimeManager.TickRate = 90;
+                }
                 break;
 
                 //main stuff here
