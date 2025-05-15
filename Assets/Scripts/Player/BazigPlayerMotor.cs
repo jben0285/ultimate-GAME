@@ -54,6 +54,7 @@ namespace Player
         [SerializeField] private Transform           _headObject;
         [SerializeField] private GameObject          Visor;
         [SerializeField] private PredictionRigidbody _predictionRigidbody;
+        [SerializeField] private GameObject          _graphicalWeapon;
 
         public ClientMenuManager CMM;
         [SerializeField]
@@ -76,6 +77,10 @@ namespace Player
         private int _doubleJumpTickCounter = 0;
         //seems to be a good amount of time to wait for the double jump
         private const int DoubleJumpTickDelay = 7;
+
+        [Header("Weapon Spread Settings")]
+        [SerializeField] private float _defaultWeaponSpread = 1.0f;
+        [SerializeField] private float _sniperWeaponSpread = 0.0f;
         #endregion
 
         // InputActions
@@ -86,6 +91,7 @@ namespace Player
         private InputAction _pitchAction;
         private InputAction _yawAction;
         private InputAction _sprintAction;
+        private InputAction _aimAction;
 
         // Local look state
         private float _currentYaw     = 0f;
@@ -107,9 +113,10 @@ namespace Player
             public readonly int   SpeedBoostCounter;
             public readonly int   JumpsPerformed;
             public readonly int   DoubleJumpTickCounter;
+            public readonly bool  Aim;
 
             private uint _tick;
-            public MovementData(float horizontal, float vertical, bool jump, bool ability, bool sprint, bool speedBoost, int speedBoostCounter, int jumpsPerformed, int doubleJumpTickCounter)
+            public MovementData(float horizontal, float vertical, bool jump, bool ability, bool sprint, bool speedBoost, int speedBoostCounter, int jumpsPerformed, int doubleJumpTickCounter, bool aim)
             {
                 Horizontal        = horizontal;
                 Vertical          = vertical;
@@ -120,6 +127,7 @@ namespace Player
                 SpeedBoostCounter = speedBoostCounter;
                 JumpsPerformed    = jumpsPerformed;
                 DoubleJumpTickCounter = doubleJumpTickCounter;
+                Aim               = aim;
                 _tick             = 0u;
             }
             public void Dispose() { }
@@ -178,6 +186,7 @@ namespace Player
             _pitchAction      = map.FindAction("Pitch");
             _yawAction        = map.FindAction("Yaw");
             _sprintAction     = map.FindAction("Sprint");
+            _aimAction        = map.FindAction("Aim");
 
             _horizontalAction.Enable();
             _verticalAction.Enable();
@@ -186,6 +195,7 @@ namespace Player
             _pitchAction.Enable();
             _yawAction.Enable();
             _sprintAction.Enable();
+            _aimAction.Enable();
 
             _sprintStamina = _sprintStaminaMax;
         }
@@ -203,6 +213,7 @@ namespace Player
             _pitchAction.Disable();
             _yawAction.Disable();
             _sprintAction.Disable();
+            _aimAction.Disable();
         }
 
         private void OnDestroy()
@@ -256,25 +267,26 @@ namespace Player
             // Only allow jump if jump key was pressed this frame and we have jumps left
             bool jumpPressed = _jumpAction.WasPressedThisFrame();
             bool canJump = false;
-            if (jumpPressed)
+            if (jumpPressed && _jumpsPerformed < _maxJumps)
             {
                 if (_jumpsPerformed == 0)
                 {
                     canJump = true;
                 }
-                else if (_jumpsPerformed == 1 && _doubleJumpTickCounter >= DoubleJumpTickDelay)
+                else if (_doubleJumpTickCounter >= DoubleJumpTickDelay)
                 {
                     canJump = true;
                 }
             }
             bool ab = _abilityAction.IsPressed();
             bool sprint = _sprintAction.IsPressed();
+            bool aim = _aimAction.IsPressed();
 
             // speedBoost fields if you have them
             bool sb = false;
             int  sbc = 0;
 
-            return new MovementData(h, v, canJump, ab, sprint, sb, sbc, _jumpsPerformed, _doubleJumpTickCounter);
+            return new MovementData(h, v, canJump, ab, sprint, sb, sbc, _jumpsPerformed, _doubleJumpTickCounter, aim);
         }
 
         private bool IsGrounded(out RaycastHit hit)
@@ -317,7 +329,7 @@ namespace Player
                 _jumpsPerformed = 0;
                 _doubleJumpTickCounter = 0;
             }
-            else if (_jumpsPerformed == 1)
+            else if (_jumpsPerformed > 0)
             {
                 _doubleJumpTickCounter++;
             }
@@ -346,12 +358,12 @@ namespace Player
             Vector3 force   = (forward * data.Vertical + right * data.Horizontal) * _moveForce * moveMultiplier;
             _predictionRigidbody.AddForce(force, ForceMode.Acceleration);
 
-            // Double jump logic
+            // Multi-jump logic
             if (data.Jump && data.JumpsPerformed < _maxJumps)
             {
                 _predictionRigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
                 _jumpsPerformed++;
-                if (_jumpsPerformed == 2)
+                if (_jumpsPerformed > 1)
                     _doubleJumpTickCounter = 0;
             }
 
@@ -409,11 +421,13 @@ namespace Player
         private void DeactivateAbility()
         {
             _abilityActive = false;
+            abilityDurationCounter = _abilityDurationResetValue;
         switch (_playerType)
         {
             case PlayerType.Assault:
                 Debug.Log("Deactivating Assault ability");
                 // Add logic to deactivate Assault ability if needed
+                RpcUpdateAssaultWeaponStats(6, 250);
                 break;
 
             case PlayerType.Support:
@@ -423,7 +437,8 @@ namespace Player
 
             case PlayerType.Sniper:
                 Debug.Log("Deactivating Sniper ability");
-                // Add logic to deactivate Sniper ability if needed
+                _maxJumps = 2;
+                RpcUpdateSniperWeaponStats(_defaultWeaponSpread);
                 break;
 
             default:
@@ -444,8 +459,8 @@ namespace Player
             {
                 case PlayerType.Assault:
                     Debug.Log("Activating Assault ability");
-                    
-                   // _firearmController.ActivateAssaultAbility();
+                    RpcUpdateAssaultWeaponStats(4, 100);
+                    // _firearmController.ActivateAssaultAbility();
                     break;
 
                 case PlayerType.Support:
@@ -457,8 +472,8 @@ namespace Player
                 case PlayerType.Sniper:
                     // Implement the ability for Assasin type
                     Debug.Log("Activating Sniper ability");
-                    
-                    // Example: Become invisible for a short duration
+                    _maxJumps = 4;
+                    RpcUpdateSniperWeaponStats(_sniperWeaponSpread);
                     break;
 
                 default:
@@ -473,6 +488,17 @@ namespace Player
         {
             if (!IsOwner) return;
             HandleMouseLook();
+            if(_playerType == PlayerType.Sniper)
+            {
+                HandleAimToggle();
+                if (_firearmController != null)
+                    _firearmController.spread = _sniperWeaponSpread;
+            }
+            else
+            {
+                if (_firearmController != null)
+                    _firearmController.spread = _defaultWeaponSpread;
+            }
         }
 
         private void HandleMouseLook()
@@ -530,6 +556,22 @@ namespace Player
             // Remote clients only: rotate that player's head to match
             _headObject.localEulerAngles = new Vector3(pitch, 0f, 0f);
         }
+
+        private bool _isAiming = false;
+        private void HandleAimToggle()
+        {
+            // Toggle on button press (not hold)
+            if (_aimAction.WasPressedThisFrame())
+            {
+                _isAiming = !_isAiming;
+                if (_graphicalWeapon != null)
+                    _graphicalWeapon.SetActive(!_isAiming);
+                if (CMM != null)
+                    CMM.ToggleScope(_isAiming);
+                if (Camera.main != null)
+                    Camera.main.fieldOfView = _isAiming ? 22f : 60f;
+            }
+        }
         #endregion
 
         void OnEnable()
@@ -544,6 +586,25 @@ namespace Player
 
         private void HandleGameStart()
         {
+        }
+
+        [ObserversRpc]
+        private void RpcUpdateAssaultWeaponStats(int cycleReset, int fireReset)
+        {
+            if (_firearmController != null)
+            {
+                _firearmController.cycleCounterReset = cycleReset;
+                _firearmController.fireCounterReset = fireReset;
+            }
+        }
+
+        [ObserversRpc]
+        private void RpcUpdateSniperWeaponStats(float spread)
+        {
+            if (_firearmController != null)
+            {
+                _firearmController.spread = spread;
+            }
         }
     }
 }
