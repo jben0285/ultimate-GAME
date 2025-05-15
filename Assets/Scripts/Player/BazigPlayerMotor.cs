@@ -66,6 +66,14 @@ namespace Player
         [SerializeField] private int _sprintStaminaDrainPerTick = 2;
         [SerializeField] private int _sprintStaminaRegenPerTick = 1;
         private bool _isSprinting;
+        
+        // Double jump fields
+        [Header("Double Jump Settings")]
+        [SerializeField] private int _maxJumps = 2;
+        private int _jumpsPerformed = 0;
+        private int _doubleJumpTickCounter = 0;
+        //seems to be a good amount of time to wait for the double jump
+        private const int DoubleJumpTickDelay = 7;
         #endregion
 
         // InputActions
@@ -95,9 +103,11 @@ namespace Player
             public readonly bool  Sprint;
             public readonly bool  SpeedBoost;
             public readonly int   SpeedBoostCounter;
+            public readonly int   JumpsPerformed;
+            public readonly int   DoubleJumpTickCounter;
 
             private uint _tick;
-            public MovementData(float horizontal, float vertical, bool jump, bool ability, bool sprint, bool speedBoost, int speedBoostCounter)
+            public MovementData(float horizontal, float vertical, bool jump, bool ability, bool sprint, bool speedBoost, int speedBoostCounter, int jumpsPerformed, int doubleJumpTickCounter)
             {
                 Horizontal        = horizontal;
                 Vertical          = vertical;
@@ -106,6 +116,8 @@ namespace Player
                 Sprint            = sprint;
                 SpeedBoost        = speedBoost;
                 SpeedBoostCounter = speedBoostCounter;
+                JumpsPerformed    = jumpsPerformed;
+                DoubleJumpTickCounter = doubleJumpTickCounter;
                 _tick             = 0u;
             }
             public void Dispose() { }
@@ -119,16 +131,20 @@ namespace Player
             public readonly bool       SpeedBoost;
             public readonly int       AbilityCooldown;
             public readonly int       AbilityDuration;
-            public readonly bool       AbilityActive;
+            public readonly bool      AbilityActive;
+            public readonly int       JumpsPerformed;
+            public readonly int       DoubleJumpTickCounter;
 
             private uint _tick;
-            public ReconcileData(PredictionRigidbody prb, bool speedBoost, int abilityCooldown, int abilityDuration, bool abilityActive)
+            public ReconcileData(PredictionRigidbody prb, bool speedBoost, int abilityCooldown, int abilityDuration, bool abilityActive, int jumpsPerformed, int doubleJumpTickCounter)
             {
                 PredictionRigidbody = prb;
                 SpeedBoost          = speedBoost;
                 AbilityCooldown     = abilityCooldown;
                 AbilityDuration     = abilityDuration;
                 AbilityActive       = abilityActive;
+                JumpsPerformed      = jumpsPerformed;
+                DoubleJumpTickCounter = doubleJumpTickCounter;
                 _tick               = 0u;
             }
             public void Dispose() { }
@@ -229,7 +245,26 @@ namespace Player
             }
             float h = _horizontalAction.ReadValue<float>();
             float v = _verticalAction.ReadValue<float>();
-            bool groundJump = _jumpAction.IsPressed() && IsGrounded(out _);
+            bool isGrounded = IsGrounded(out _);
+            if (isGrounded)
+            {
+                _jumpsPerformed = 0;
+                _doubleJumpTickCounter = 0;
+            }
+            // Only allow jump if jump key was pressed this frame and we have jumps left
+            bool jumpPressed = _jumpAction.WasPressedThisFrame();
+            bool canJump = false;
+            if (jumpPressed)
+            {
+                if (_jumpsPerformed == 0)
+                {
+                    canJump = true;
+                }
+                else if (_jumpsPerformed == 1 && _doubleJumpTickCounter >= DoubleJumpTickDelay)
+                {
+                    canJump = true;
+                }
+            }
             bool ab = _abilityAction.IsPressed();
             bool sprint = _sprintAction.IsPressed();
 
@@ -237,7 +272,7 @@ namespace Player
             bool sb = false;
             int  sbc = 0;
 
-            return new MovementData(h, v, groundJump, ab, sprint, sb, sbc);
+            return new MovementData(h, v, canJump, ab, sprint, sb, sbc, _jumpsPerformed, _doubleJumpTickCounter);
         }
 
         private bool IsGrounded(out RaycastHit hit)
@@ -274,6 +309,17 @@ namespace Player
                 if (_sprintStamina > _sprintStaminaMax) _sprintStamina = _sprintStaminaMax;
             }
 
+            bool isGrounded = IsGrounded(out _);
+            if (isGrounded)
+            {
+                _jumpsPerformed = 0;
+                _doubleJumpTickCounter = 0;
+            }
+            else if (_jumpsPerformed == 1)
+            {
+                _doubleJumpTickCounter++;
+            }
+
             if(_abilityActive)
             {
                 switch (_playerType)
@@ -295,11 +341,17 @@ namespace Player
             }
             Vector3 forward = transform.forward;
             Vector3 right   = transform.right;
-            Vector3 force   = (forward * data.Vertical + right * data.Horizontal) * 25f * moveMultiplier;
+            Vector3 force   = (forward * data.Vertical + right * data.Horizontal) * _moveForce * moveMultiplier;
             _predictionRigidbody.AddForce(force, ForceMode.Acceleration);
 
-            if (data.Jump)
+            // Double jump logic
+            if (data.Jump && data.JumpsPerformed < _maxJumps)
+            {
                 _predictionRigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+                _jumpsPerformed++;
+                if (_jumpsPerformed == 2)
+                    _doubleJumpTickCounter = 0;
+            }
 
             _predictionRigidbody.AddForce(Physics.gravity, ForceMode.Acceleration);
 
@@ -317,7 +369,7 @@ namespace Player
                 abilityDurationCounter--;
                 if(abilityDurationCounter <= 0)
                 {
-                    _abilityActive = false;
+                    DeactivateAbility();
                 }
             }
             // 2) If they pressed the ability button AND they're off cooldown
@@ -330,7 +382,7 @@ namespace Player
 
         public override void CreateReconcile()
         {
-            var rd = new ReconcileData(_predictionRigidbody, false, abilityCoolDownCounter, abilityDurationCounter, _abilityActive);
+            var rd = new ReconcileData(_predictionRigidbody, false, abilityCoolDownCounter, abilityDurationCounter, _abilityActive, _jumpsPerformed, _doubleJumpTickCounter);
             ReconcileState(rd);
         }
 
@@ -342,14 +394,45 @@ namespace Player
             abilityCoolDownCounter = data.AbilityCooldown;
             abilityDurationCounter = data.AbilityDuration;
             _abilityActive = data.AbilityActive;
+            _jumpsPerformed = data.JumpsPerformed;
+            _doubleJumpTickCounter = data.DoubleJumpTickCounter;
             _predictionRigidbody.Reconcile(
                 data.PredictionRigidbody
             );
             transform.rotation = savedBodyRot;
         }
+        private void DeactivateAbility()
+        {
+            _abilityActive = false;
+        switch (_playerType)
+        {
+            case PlayerType.Assault:
+                Debug.Log("Deactivating Assault ability");
+                // Add logic to deactivate Assault ability if needed
+                break;
 
+            case PlayerType.Support:
+                Debug.Log("Deactivating Support ability");
+                // Add logic to deactivate Support ability if needed
+                break;
+
+            case PlayerType.Sniper:
+                Debug.Log("Deactivating Sniper ability");
+                // Add logic to deactivate Sniper ability if needed
+                break;
+
+            default:
+                Debug.LogWarning("Unknown player type during deactivation");
+                break;
+        }
+        }
         private void ActivateAbility(PlayerType playerType)
         {
+            //do not activate ability if it is already active
+            if(_abilityActive)
+            {
+                return;
+            }
             _abilityActive = true;
             switch (playerType)
             {
@@ -367,7 +450,8 @@ namespace Player
 
                 case PlayerType.Sniper:
                     // Implement the ability for Assasin type
-                    Debug.Log("Activating Assasin ability");
+                    Debug.Log("Activating Sniper ability");
+                    
                     // Example: Become invisible for a short duration
                     break;
 
