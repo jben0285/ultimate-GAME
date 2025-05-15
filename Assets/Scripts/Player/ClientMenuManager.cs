@@ -11,7 +11,7 @@ namespace Player
     {
         private static ClientMenuManager instance;
 
-        [SerializeField] private GameObject _scopeImage;
+
         //assigned by bootstrap network manager
         public PlayerHealth _health;
         public bool InMenu;
@@ -32,10 +32,7 @@ namespace Player
         private void Awake() => instance = this;
 
         // Start is called before the first frame update
-        void Start()
-        {
-            _scopeImage.SetActive(false);
-        }
+        
 
         // Update is called once per frame
         void Update()
@@ -99,11 +96,6 @@ namespace Player
             dead = false;
             //looks confusing
             _health.RespawnServer(_health);
-        }
-
-        public void ToggleScope(bool toggle)
-        {
-            _scopeImage.SetActive(toggle);
         }
     }
 }

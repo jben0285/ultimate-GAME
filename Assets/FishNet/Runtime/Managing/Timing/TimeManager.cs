@@ -194,7 +194,7 @@ namespace FishNet.Managing.Timing
         public ushort TickRate
         {
             get => _tickRate;
-            set => _tickRate = value;
+            private set => _tickRate = value;
         }
 
         /// <summary>

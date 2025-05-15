@@ -10,6 +10,7 @@ using FishNet;
 using FishNet.Object.Prediction;
 using FishNet.Transporting;
 using Bootstrap;
+using Unity.VisualScripting.FullSerializer;
 
 
 //script responsible for handling every aspect of the player shooting.
@@ -23,8 +24,6 @@ namespace Weapons
     public class FirearmController : NetworkBehaviour
     {
         public bool inHand;
-        [SerializeField] private AudioSource fireAudioSource;
-        [SerializeField] private AudioSource reloadAudioSource;
 
         public string _weaponName;
         public enum FireState
@@ -33,7 +32,7 @@ namespace Weapons
         }
         [Header("Tank Firing Characteristics")]
         public FireState fireState;
-        public int fireDelayCounter, fireCounterReset, cycleDelayCounter, cycleCounterReset;
+        [SerializeField] private int fireDelayCounter, fireCounterReset, cycleDelayCounter, cycleCounterReset;
         public bool startedReloading = false;
         public int magazineCount;
         public int maxMagazineCount;
@@ -48,9 +47,6 @@ namespace Weapons
         public float explosionDecalScale;
 
         public GameObject explosionParticlePrefab;
-
-        [Header("Weapon Spread")]
-        public float spread = 1.0f;
 
         [Header("Assign In Inspector")]
        // [SerializeField] private PlayerAudioController pac;
@@ -314,17 +310,13 @@ namespace Weapons
             //call the observer fire function. handles stuff like making the bullet trail and playing
             //sound effects
 
-
-
-            // Observer functionality to notify other clients about the firing event
-            ObserverFire(fd);
             //on the server side
             //ObserverFire(fireCont);
 
             //do not call playerfire if client is host. This is because it does not need to do local stuff if
             //you are the server
 
-            float spreadFactor = this.spread;
+            float spreadFactor = Mathf.Lerp(0.3f, 3f, Mathf.Clamp01(.2f));
 
             float horizontalSpread = UnityEngine.Random.Range(-spreadFactor, spreadFactor);
             float verticalSpread = UnityEngine.Random.Range(-spreadFactor, spreadFactor);
@@ -372,19 +364,6 @@ namespace Weapons
             //subtract one from mags
             magazineCount -= 1;
 
-            // Start coroutine to trigger 'rack' after 1 second
-            if (tank_barrel_animator != null)
-                StartCoroutine(RackAfterDelay());
-        }
-
-        private System.Collections.IEnumerator RackAfterDelay()
-        {
-            yield return new WaitForSeconds(0.25f);
-            if (tank_barrel_animator != null)
-                tank_barrel_animator.SetTrigger("rack");
-            yield return new WaitForSeconds(.65f);
-            reloadAudioSource.Play();
-
         }
 
         private void SetReticle()
@@ -403,8 +382,9 @@ namespace Weapons
             PredictedProjectileController ppc = spawnedProjectile.GetComponent<PredictedProjectileController>();
 
             ppc.Initialize(lfd._bulletSpawnPosition, lfd._direction, lfd._projSpeed, lfd._maxDistance, lfd._damage, targetLayerMask);
+            ppc.ready = true;
             ServerManager.Spawn(spawnedProjectile, conn);
-            // GetComponent<AudioSource>().Play();
+            GetComponent<AudioSource>().Play();
             // GameObject firedGunDecoration = Instantiate(gunExplosionTestPrefab, bulletSpawn.position, bulletSpawn.rotation);
             // ServerManager.Spawn(firedGunDecoration);
         }
@@ -419,6 +399,17 @@ namespace Weapons
             }
         }
 
+        [ServerRpc(RunLocally = true)]
+        public void UpdateTankMag(FirearmController fire)
+        {
+            fire.maxMagazineCount++;
+        }
+
+        [ServerRpc(RunLocally = true)]
+        public void UpdateTankDamage(FirearmController fire, float amount)
+        {
+            fire.damage += amount;
+        }
 
         public override void OnStartClient()
         {
@@ -503,6 +494,12 @@ namespace Weapons
             reloadReticle.fillAmount = (float)magazineCount / maxMagazineCount;
         }
 
+        //would be no less than a bitch to get a decoration projectile to be rendered on the client
+        //before the server, ensuring that both randomly generated innacuracies match.
+        //possible solution: generate random innacuracy on client, pass to server
+        //dont have the skills for this at the moment, because this would require making the
+        //projectiles NON-networked, which thus would require re-doing the entire impact system.
+        //AHHA I DID ITTT
         public void PlayerFire()
         {
 
@@ -515,15 +512,20 @@ namespace Weapons
 
         }
 
-        [ObserversRpc(RunLocally = true, ExcludeOwner = true)]
-        private void ObserverFire(FireData fd)
+        public void ActivateAssaultAbility()
         {
-            if (fireAudioSource != null)
-            {
-            Debug.Log("ObserverFire called");
-                fireAudioSource.PlayOneShot(fireAudioSource.clip);
-            }
+            throw new NotImplementedException();
         }
+
+
+        // [ObserversRpc(RunLocally = false)]
+        // public void ObserverFire(PlayerFireController fireCont, ProjectileRealCollision master, Vector2 direction)
+        // {
+        //     Debug.LogError("played sound and stuff");
+        //     //play sound for other players
+        //     fireCont.GetComponent<AudioSource>().Play();
+        // }
+
 
     }
 

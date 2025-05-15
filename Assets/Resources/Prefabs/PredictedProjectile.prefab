@@ -242,7 +242,7 @@ MonoBehaviour:
   ready: 0
   collisionMask:
     serializedVersion: 2
-    m_Bits: 377
+    m_Bits: 53
 --- !u!114 &-5658327301896527379
 MonoBehaviour:
   m_ObjectHideFlags: 0

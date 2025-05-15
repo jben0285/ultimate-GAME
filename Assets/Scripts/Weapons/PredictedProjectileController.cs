@@ -1,134 +1,70 @@
-using FishNet;
-using FishNet.Object;
-using FishNet.Object.Prediction;
-using FishNet.Transporting;
-using GameKit.Dependencies.Utilities;
+using System.Collections;
+using System.Collections.Generic;
+using Player;
+using Steamworks;
 using UnityEngine;
 
+
 namespace Weapons {
-    /// <summary>
-    /// A projectile that uses client-side prediction with reconciliation across server and clients.
-    /// </summary>
-    public class PredictedProjectileController : NetworkBehaviour
+public class PredictedProjectileController : MonoBehaviour
+{
+
+    public struct LiveFireData
     {
-        public struct LiveFireData
-        {
-            public Vector3 position;
-            public Vector3 direction;
-            public float speed;
-            public float lifeTime;
-            public float damage;
-        }
+        public Vector3 position;
+        public Vector3 direction;
+        public float speed;
+        public float lifeTime;
+        public float damage;
+        
+    }
 
-        // Reconcile data carries authoritative position
-        public struct ProjectileReconcileData : IReconcileData
+    public bool ready = false;
+
+    public LiveFireData lfd;
+
+    public LayerMask collisionMask; // LayerMask to specify which layers to check for collision
+   
+    public void Initialize(Vector3 position, Vector3 direction, float speed, float lifeTime, float damage, LayerMask collisionMask)
+    {
+        lfd = new LiveFireData { position = position, direction = direction, speed = speed, lifeTime = lifeTime, damage = damage };
+        this.collisionMask = collisionMask;
+        Destroy(gameObject, lfd.lifeTime);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if(ready)
+        FireProjectile();
+    }
+
+    void FireProjectile()
+    {
+        RaycastHit hit;
+        Color[] colors = new Color[3] { Color.red, Color.green, Color.blue };
+        Debug.DrawLine(transform.position, transform.position + lfd.direction * lfd.speed, colors[Time.frameCount % 3], 3f);
+        
+        // Fire a raycast in the specified direction
+        if (Physics.Raycast(transform.position, lfd.direction, out hit, lfd.speed, collisionMask))
         {
-            public Vector3 Position;
-            private uint _tick;
-            public ProjectileReconcileData(Vector3 position)
+            if(hit.collider.gameObject.layer == LayerMask.NameToLayer("OtherPlayerLayer"))
             {
-                Position = position;
-                _tick = 0u;
+                PlayerHealth health = hit.collider.GetComponentInParent<PlayerHealth>();
+                if(health != null)
+                {
+                    health.DealDamage(health, 10f, SteamFriends.GetPersonaName());
+                }
             }
-            public void Dispose() { }
-            public uint GetTick() => _tick;
-            public void SetTick(uint v) => _tick = v;
+            transform.position = hit.transform.position;
+            Debug.Log("Hit: " + hit.collider.name);
+            Destroy(gameObject);
         }
-
-        // Empty input data: no client-driven input for the projectile
-        private struct EmptyInput : IReplicateData
+        else
         {
-            private uint _tick;
-            public void Dispose() { }
-            public uint GetTick() => _tick;
-            public void SetTick(uint v) => _tick = v;
-        }
-
-        public LiveFireData lfd;
-        public LayerMask collisionMask;
-
-        /// <summary>
-        /// One-time initialization of projectile state.
-        /// Call this immediately after spawning on the server.
-        /// </summary>
-        public void Initialize(Vector3 position, Vector3 direction, float speed, float lifeTime, float damage, LayerMask collisionMask)
-        {
-            lfd = new LiveFireData { position = position, direction = direction.normalized, speed = speed, lifeTime = lifeTime, damage = damage };
-            this.collisionMask = collisionMask;
-            transform.position = position;
-            Destroy(gameObject, lifeTime);
-        }
-
-        private void Awake()
-        {
-            // nothing here; initialization happens in Initialize()
-        }
-
-        public override void OnStartNetwork()
-        {
-            base.OnStartNetwork();
-            // Subscribe to tick events for prediction
-            InstanceFinder.TimeManager.OnTick     += TimeManager_OnTick;
-            InstanceFinder.TimeManager.OnPostTick += TimeManager_OnPostTick;
-        }
-
-        public override void OnStopNetwork()
-        {
-            base.OnStopNetwork();
-            InstanceFinder.TimeManager.OnTick     -= TimeManager_OnTick;
-            InstanceFinder.TimeManager.OnPostTick -= TimeManager_OnPostTick;
-        }
-
-        private void TimeManager_OnTick()
-        {
-            // Simulate movement each tick via replicate
-            Move(default);
-        }
-
-        private void TimeManager_OnPostTick()
-        {
-            if (!IsServerStarted) return;
-            // Send authoritative position back after simulation
-            CreateReconcile();
-        }
-
-        [Replicate]
-        private void Move(EmptyInput data, ReplicateState state = ReplicateState.Invalid, Channel channel = Channel.Unreliable)
-        {
-            // Advance along direction by speed * tick delta
-            float delta = (float)InstanceFinder.TimeManager.TickDelta;
-            Vector3 nextPos = transform.position + lfd.direction * lfd.speed * delta;
-
-            // Check collision via raycast
-            if (Physics.Raycast(transform.position, lfd.direction, out RaycastHit hit, lfd.speed * delta, collisionMask))
-            {
-                transform.position = hit.point;
-
-                var health = hit.collider.GetComponentInParent<Player.PlayerHealth>();
-                if (health != null)
-                    health.DealDamage(health, lfd.damage, Steamworks.SteamFriends.GetPersonaName());
-
-                // Destroy across network
-                if (IsServerStarted)
-                    NetworkObject.Despawn();
-            }
-            else
-            {
-                transform.position = nextPos;
-            }
-        }
-
-        public override void CreateReconcile()
-        {
-            var rd = new ProjectileReconcileData(transform.position);
-            ReconcileState(rd);
-        }
-
-        [Reconcile]
-        private void ReconcileState(ProjectileReconcileData data, Channel channel = Channel.Unreliable)
-        {
-            // Overwrite position to server's authoritative
-            transform.position = data.Position;
+            // No collision, teleport the projectile forward
+            transform.position += lfd.direction * lfd.speed;
         }
     }
+}
 }
