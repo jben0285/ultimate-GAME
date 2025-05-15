@@ -784,7 +784,7 @@ MonoBehaviour:
   _componentIndexCache: 255
   _addedNetworkObject: {fileID: 6338806279402370395}
   _networkObjectCache: {fileID: 0}
-  StartingHealth: 0
+  StartingHealth: 150
   spawnPoint: {fileID: 0}
   CMM: {fileID: 0}
   BPM: {fileID: 0}

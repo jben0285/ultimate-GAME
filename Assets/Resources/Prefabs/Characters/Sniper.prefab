@@ -1536,7 +1536,7 @@ MonoBehaviour:
   maxMagazineCount: 1
   reserveCount: 9999999
   damage: 5
-  projSpeed: 400
+  projSpeed: 200
   ricochetAngle: 0
   targetLayerMask:
     serializedVersion: 2
