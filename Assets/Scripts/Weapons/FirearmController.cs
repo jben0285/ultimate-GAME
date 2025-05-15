@@ -54,6 +54,9 @@ namespace Weapons
         [SerializeField] private Animator tank_barrel_animator;
         [SerializeField] private Light2D turretVision;
         public Transform bulletSpawn;
+
+        [SerializeField] private GameObject _GraphicalWeapon;
+        [SerializeField] private GameObject _AssaultGraphicalWeapon;
         // Prefabs
         [SerializeField] private GameObject projectileContainerPrefab;
         public GameObject crosshair;
@@ -382,8 +385,8 @@ namespace Weapons
             ppc.ready = true;
             ServerManager.Spawn(spawnedProjectile, conn);
             GetComponent<AudioSource>().Play();
-            GameObject firedGunDecoration = Instantiate(gunExplosionTestPrefab, bulletSpawn.position, bulletSpawn.rotation);
-            ServerManager.Spawn(firedGunDecoration);
+            // GameObject firedGunDecoration = Instantiate(gunExplosionTestPrefab, bulletSpawn.position, bulletSpawn.rotation);
+            // ServerManager.Spawn(firedGunDecoration);
         }
 
         private void OnDestroy()
@@ -507,6 +510,11 @@ namespace Weapons
             tank_barrel_animator.SetTrigger("gun");
             GameObject firedGunDecoration = Instantiate(gunExplosionTestPrefab, bulletSpawn.position, bulletSpawn.rotation);
 
+        }
+
+        public void ActivateAssaultAbility()
+        {
+            throw new NotImplementedException();
         }
 
 

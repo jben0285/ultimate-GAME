@@ -6,6 +6,7 @@ using GameKit.Dependencies.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Bootstrap;
+using Weapons;
 using FishNet.Object.Synchronizing;
 namespace Player
 {
@@ -15,7 +16,7 @@ namespace Player
         {
             Assault,
             Support,
-            Assasin
+            Sniper
         }
 
         [Header("Player Type")]
@@ -30,12 +31,15 @@ namespace Player
         [SerializeField] private float _jumpForce       = 12f;
         [SerializeField] private float _abilityForce    = 12f;
         [SerializeField] private float _lookSensitivity = 0.1f;
+        [SerializeField] private bool useRPCYawSync;
 
+        [Header("Ability Settings")]
         [SerializeField] private int _abilityCooldownResetValue;
-        [SerializeField]
-        private int abilityCoolDownCounter;
-        [SerializeField]
-        private bool useRPCYawSync;
+        [SerializeField] private int abilityCoolDownCounter;
+
+        [SerializeField] private int _abilityDurationResetValue;
+        [SerializeField] private int abilityDurationCounter;
+        public bool _abilityActive;
 
         
 
@@ -50,6 +54,26 @@ namespace Player
         [SerializeField] private PredictionRigidbody _predictionRigidbody;
 
         public ClientMenuManager CMM;
+        [SerializeField]
+        private FirearmController _firearmController;
+        [SerializeField]
+        private PlayerHealth _playerHealth;
+
+        [Header("Sprint Settings")]
+        [SerializeField] private float _sprintMultiplier = 1.5f;
+        [SerializeField] private int _sprintStaminaMax = 100;
+        [SerializeField] private int _sprintStamina;
+        [SerializeField] private int _sprintStaminaDrainPerTick = 2;
+        [SerializeField] private int _sprintStaminaRegenPerTick = 1;
+        private bool _isSprinting;
+        
+        // Double jump fields
+        [Header("Double Jump Settings")]
+        [SerializeField] private int _maxJumps = 2;
+        private int _jumpsPerformed = 0;
+        private int _doubleJumpTickCounter = 0;
+        //seems to be a good amount of time to wait for the double jump
+        private const int DoubleJumpTickDelay = 7;
         #endregion
 
         // InputActions
@@ -59,12 +83,15 @@ namespace Player
         private InputAction _abilityAction;
         private InputAction _pitchAction;
         private InputAction _yawAction;
+        private InputAction _sprintAction;
 
         // Local look state
         private float _currentYaw     = 0f;
         private float _currentPitch   = 0f;
         private float _lastSentYaw    = 0f;
+        private float _lastSentPitch  = 0f;
         private const float YawSyncThreshold = 1f;
+        private const float PitchSyncThreshold = 1f;
 
         #region Movement Data Structs
         private struct MovementData : IReplicateData
@@ -73,20 +100,24 @@ namespace Player
             public readonly float Vertical;
             public readonly bool  Jump;
             public readonly bool  Ability;
-
+            public readonly bool  Sprint;
             public readonly bool  SpeedBoost;
             public readonly int   SpeedBoostCounter;
-
+            public readonly int   JumpsPerformed;
+            public readonly int   DoubleJumpTickCounter;
 
             private uint _tick;
-            public MovementData(float horizontal, float vertical, bool jump, bool ability, bool speedBoost, int speedBoostCounter)
+            public MovementData(float horizontal, float vertical, bool jump, bool ability, bool sprint, bool speedBoost, int speedBoostCounter, int jumpsPerformed, int doubleJumpTickCounter)
             {
                 Horizontal        = horizontal;
                 Vertical          = vertical;
                 Jump              = jump;
                 Ability           = ability;
+                Sprint            = sprint;
                 SpeedBoost        = speedBoost;
                 SpeedBoostCounter = speedBoostCounter;
+                JumpsPerformed    = jumpsPerformed;
+                DoubleJumpTickCounter = doubleJumpTickCounter;
                 _tick             = 0u;
             }
             public void Dispose() { }
@@ -99,13 +130,21 @@ namespace Player
             public PredictionRigidbody PredictionRigidbody;
             public readonly bool       SpeedBoost;
             public readonly int       AbilityCooldown;
+            public readonly int       AbilityDuration;
+            public readonly bool      AbilityActive;
+            public readonly int       JumpsPerformed;
+            public readonly int       DoubleJumpTickCounter;
 
             private uint _tick;
-            public ReconcileData(PredictionRigidbody prb, bool speedBoost, int abilityCooldown)
+            public ReconcileData(PredictionRigidbody prb, bool speedBoost, int abilityCooldown, int abilityDuration, bool abilityActive, int jumpsPerformed, int doubleJumpTickCounter)
             {
                 PredictionRigidbody = prb;
                 SpeedBoost          = speedBoost;
                 AbilityCooldown     = abilityCooldown;
+                AbilityDuration     = abilityDuration;
+                AbilityActive       = abilityActive;
+                JumpsPerformed      = jumpsPerformed;
+                DoubleJumpTickCounter = doubleJumpTickCounter;
                 _tick               = 0u;
             }
             public void Dispose() { }
@@ -136,6 +175,7 @@ namespace Player
             _abilityAction    = map.FindAction("Ability");
             _pitchAction      = map.FindAction("Pitch");
             _yawAction        = map.FindAction("Yaw");
+            _sprintAction     = map.FindAction("Sprint");
 
             _horizontalAction.Enable();
             _verticalAction.Enable();
@@ -143,6 +183,9 @@ namespace Player
             _abilityAction.Enable();
             _pitchAction.Enable();
             _yawAction.Enable();
+            _sprintAction.Enable();
+
+            _sprintStamina = _sprintStaminaMax;
         }
 
         public override void OnStopNetwork()
@@ -157,6 +200,7 @@ namespace Player
             _abilityAction.Disable();
             _pitchAction.Disable();
             _yawAction.Disable();
+            _sprintAction.Disable();
         }
 
         private void OnDestroy()
@@ -201,14 +245,34 @@ namespace Player
             }
             float h = _horizontalAction.ReadValue<float>();
             float v = _verticalAction.ReadValue<float>();
-            bool groundJump = _jumpAction.IsPressed() && IsGrounded(out _);
+            bool isGrounded = IsGrounded(out _);
+            if (isGrounded)
+            {
+                _jumpsPerformed = 0;
+                _doubleJumpTickCounter = 0;
+            }
+            // Only allow jump if jump key was pressed this frame and we have jumps left
+            bool jumpPressed = _jumpAction.WasPressedThisFrame();
+            bool canJump = false;
+            if (jumpPressed)
+            {
+                if (_jumpsPerformed == 0)
+                {
+                    canJump = true;
+                }
+                else if (_jumpsPerformed == 1 && _doubleJumpTickCounter >= DoubleJumpTickDelay)
+                {
+                    canJump = true;
+                }
+            }
             bool ab = _abilityAction.IsPressed();
+            bool sprint = _sprintAction.IsPressed();
 
             // speedBoost fields if you have them
             bool sb = false;
             int  sbc = 0;
 
-            return new MovementData(h, v, groundJump, ab, sb, sbc);
+            return new MovementData(h, v, canJump, ab, sprint, sb, sbc, _jumpsPerformed, _doubleJumpTickCounter);
         }
 
         private bool IsGrounded(out RaycastHit hit)
@@ -225,73 +289,177 @@ namespace Player
         [Replicate]
         private void Move(MovementData data, ReplicateState state = ReplicateState.Invalid, Channel channel = Channel.Unreliable)
         {
-            if(!base.IsOwner)
-            {
-                Debug.LogError("CLIENT ON REPLICATE");
-            }
-            Debug.Log($"[Replicate] on {(IsOwner? "Owner" : IsServer? "Server" : "Spectator")} tick {base.TimeManager.LocalTick} state={state}");
-
             if (_predictionRigidbody == null) return;
-
 
             HandleAbilityReplicate(data.Ability, _predictionRigidbody);
 
+            // Sprint logic
+            float moveMultiplier = 1f;
+            _isSprinting = false;
+            if (data.Sprint && _sprintStamina > 0 && (Mathf.Abs(data.Horizontal) > 0.1f || Mathf.Abs(data.Vertical) > 0.1f))
+            {
+                moveMultiplier = _sprintMultiplier;
+                _isSprinting = true;
+                _sprintStamina -= _sprintStaminaDrainPerTick;
+                if (_sprintStamina < 0) _sprintStamina = 0;
+            }
+            else
+            {
+                _sprintStamina += _sprintStaminaRegenPerTick;
+                if (_sprintStamina > _sprintStaminaMax) _sprintStamina = _sprintStaminaMax;
+            }
 
+            bool isGrounded = IsGrounded(out _);
+            if (isGrounded)
+            {
+                _jumpsPerformed = 0;
+                _doubleJumpTickCounter = 0;
+            }
+            else if (_jumpsPerformed == 1)
+            {
+                _doubleJumpTickCounter++;
+            }
+
+            if(_abilityActive)
+            {
+                switch (_playerType)
+                {
+                    case PlayerType.Assault:
+                        // Implement logic for Assault player type
+                        break;
+                    case PlayerType.Support:
+                        // Implement logic for Support player type
+                        break;
+                    case PlayerType.Sniper:
+                        // Implement logic for Sniper player type
+                        break;
+                    default:
+                        // Handle unexpected player type
+                        break;
+                }
+                
+            }
             Vector3 forward = transform.forward;
             Vector3 right   = transform.right;
-            Vector3 force   = (forward * data.Vertical + right * data.Horizontal) * 25f;
+            Vector3 force   = (forward * data.Vertical + right * data.Horizontal) * _moveForce * moveMultiplier;
             _predictionRigidbody.AddForce(force, ForceMode.Acceleration);
 
-            if (data.Jump)
+            // Double jump logic
+            if (data.Jump && data.JumpsPerformed < _maxJumps)
+            {
                 _predictionRigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+                _jumpsPerformed++;
+                if (_jumpsPerformed == 2)
+                    _doubleJumpTickCounter = 0;
+            }
 
-       
             _predictionRigidbody.AddForce(Physics.gravity, ForceMode.Acceleration);
 
             // Run the internal simulation step
             _predictionRigidbody.Simulate();
         }
 
-
-
-    private void HandleAbilityReplicate(bool ability, PredictionRigidbody prb)
-    {
-        if (abilityCoolDownCounter < _abilityCooldownResetValue)
-            abilityCoolDownCounter++;
-
-        // 2) If they pressed the ability button AND they’re off cooldown
-        if (ability && abilityCoolDownCounter >= _abilityCooldownResetValue)
+        private void HandleAbilityReplicate(bool ability, PredictionRigidbody prb)
         {
-            ActivateAbility(_playerType);
-            abilityCoolDownCounter = 0;  // reset
+            if (abilityCoolDownCounter < _abilityCooldownResetValue && !_abilityActive)
+                abilityCoolDownCounter++;
+            
+            if(_abilityActive)
+            {
+                abilityDurationCounter--;
+                if(abilityDurationCounter <= 0)
+                {
+                    DeactivateAbility();
+                }
+            }
+            // 2) If they pressed the ability button AND they're off cooldown
+            if (ability && abilityCoolDownCounter >= _abilityCooldownResetValue)
+            {
+                abilityCoolDownCounter = 0;  // reset
+                ActivateAbility(_playerType);
+            }
         }
-    }
 
-    public override void CreateReconcile()
-    {
-        var rd = new ReconcileData(_predictionRigidbody, false, abilityCoolDownCounter);
-        ReconcileState(rd);
-    }
+        public override void CreateReconcile()
+        {
+            var rd = new ReconcileData(_predictionRigidbody, false, abilityCoolDownCounter, abilityDurationCounter, _abilityActive, _jumpsPerformed, _doubleJumpTickCounter);
+            ReconcileState(rd);
+        }
 
         [Reconcile]
-    private void ReconcileState(ReconcileData data, Channel channel = Channel.Unreliable)
-    {
-        //DO NOT REMOVE THIS ROTATION ASSIGNMENT.
-        Quaternion savedBodyRot = transform.rotation;
-        abilityCoolDownCounter = data.AbilityCooldown;
+        private void ReconcileState(ReconcileData data, Channel channel = Channel.Unreliable)
+        {
+            //DO NOT REMOVE THIS ROTATION ASSIGNMENT.
+            Quaternion savedBodyRot = transform.rotation;
+            abilityCoolDownCounter = data.AbilityCooldown;
+            abilityDurationCounter = data.AbilityDuration;
+            _abilityActive = data.AbilityActive;
+            _jumpsPerformed = data.JumpsPerformed;
+            _doubleJumpTickCounter = data.DoubleJumpTickCounter;
+            _predictionRigidbody.Reconcile(
+                data.PredictionRigidbody
+            );
+            transform.rotation = savedBodyRot;
+        }
+        private void DeactivateAbility()
+        {
+            _abilityActive = false;
+        switch (_playerType)
+        {
+            case PlayerType.Assault:
+                Debug.Log("Deactivating Assault ability");
+                // Add logic to deactivate Assault ability if needed
+                break;
 
-        _predictionRigidbody.Reconcile(
-            data.PredictionRigidbody
-        );
-        transform.rotation = savedBodyRot;
+            case PlayerType.Support:
+                Debug.Log("Deactivating Support ability");
+                // Add logic to deactivate Support ability if needed
+                break;
 
-    }
+            case PlayerType.Sniper:
+                Debug.Log("Deactivating Sniper ability");
+                // Add logic to deactivate Sniper ability if needed
+                break;
 
+            default:
+                Debug.LogWarning("Unknown player type during deactivation");
+                break;
+        }
+        }
+        private void ActivateAbility(PlayerType playerType)
+        {
+            //do not activate ability if it is already active
+            if(_abilityActive)
+            {
+                return;
+            }
+            _abilityActive = true;
+            switch (playerType)
+            {
+                case PlayerType.Assault:
+                    Debug.Log("Activating Assault ability");
+                    
+                   // _firearmController.ActivateAssaultAbility();
+                    break;
 
-    private void ActivateAbility(PlayerType playerType)
-    {
+                case PlayerType.Support:
+                    // Implement the ability for Support type
+                    Debug.Log("Activating Support ability");
+                    // Example: Heal nearby allies
+                    break;
 
-    }
+                case PlayerType.Sniper:
+                    // Implement the ability for Assasin type
+                    Debug.Log("Activating Sniper ability");
+                    
+                    // Example: Become invisible for a short duration
+                    break;
+
+                default:
+                    Debug.LogWarning("Unknown player type");
+                    break;
+            }
+        }
 
         #region Camera Look (Client-Only)
         private void Update()
@@ -321,6 +489,11 @@ namespace Player
                     SendYawToServer(_currentYaw);
                     _lastSentYaw = _currentYaw;
                 }
+                if (Mathf.Abs(_currentPitch - _lastSentPitch) > PitchSyncThreshold)
+                {
+                    SendPitchToServer(_currentPitch);
+                    _lastSentPitch = _currentPitch;
+                }
             }
         }
 
@@ -337,6 +510,19 @@ namespace Player
             // Remote clients only: rotate that player's body to match
             transform.rotation = Quaternion.Euler(0f, yaw, 0f);
         }
+
+        [ServerRpc]
+        private void SendPitchToServer(float pitch)
+        {
+            Rpc_UpdatePitchOnObservers(pitch);
+        }
+
+        [ObserversRpc(ExcludeOwner = true)]
+        private void Rpc_UpdatePitchOnObservers(float pitch)
+        {
+            // Remote clients only: rotate that player's head to match
+            _headObject.localEulerAngles = new Vector3(pitch, 0f, 0f);
+        }
         #endregion
 
         void OnEnable()
@@ -352,6 +538,5 @@ namespace Player
         private void HandleGameStart()
         {
         }
-
     }
 }
