@@ -426,6 +426,7 @@ namespace Player
             case PlayerType.Assault:
                 Debug.Log("Deactivating Assault ability");
                 // Add logic to deactivate Assault ability if needed
+                RpcUpdateAssaultWeaponStats(4, 250);
                 break;
 
             case PlayerType.Support:
@@ -436,7 +437,7 @@ namespace Player
             case PlayerType.Sniper:
                 Debug.Log("Deactivating Sniper ability");
                 _maxJumps = 2;
-                // Add logic to deactivate Sniper ability if needed
+                RpcUpdateSniperWeaponStats(_defaultWeaponSpread);
                 break;
 
             default:
@@ -457,8 +458,8 @@ namespace Player
             {
                 case PlayerType.Assault:
                     Debug.Log("Activating Assault ability");
-                    
-                   // _firearmController.ActivateAssaultAbility();
+                    RpcUpdateAssaultWeaponStats(2, 100);
+                    // _firearmController.ActivateAssaultAbility();
                     break;
 
                 case PlayerType.Support:
@@ -471,6 +472,7 @@ namespace Player
                     // Implement the ability for Assasin type
                     Debug.Log("Activating Sniper ability");
                     _maxJumps = 4;
+                    RpcUpdateSniperWeaponStats(_sniperWeaponSpread);
                     break;
 
                 default:
@@ -583,6 +585,25 @@ namespace Player
 
         private void HandleGameStart()
         {
+        }
+
+        [ObserversRpc]
+        private void RpcUpdateAssaultWeaponStats(int cycleReset, int fireReset)
+        {
+            if (_firearmController != null)
+            {
+                _firearmController.cycleCounterReset = cycleReset;
+                _firearmController.fireCounterReset = fireReset;
+            }
+        }
+
+        [ObserversRpc]
+        private void RpcUpdateSniperWeaponStats(float spread)
+        {
+            if (_firearmController != null)
+            {
+                _firearmController.spread = spread;
+            }
         }
     }
 }

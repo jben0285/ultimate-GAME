@@ -32,7 +32,7 @@ namespace Weapons
         }
         [Header("Tank Firing Characteristics")]
         public FireState fireState;
-        [SerializeField] private int fireDelayCounter, fireCounterReset, cycleDelayCounter, cycleCounterReset;
+        public int fireDelayCounter, fireCounterReset, cycleDelayCounter, cycleCounterReset;
         public bool startedReloading = false;
         public int magazineCount;
         public int maxMagazineCount;
@@ -385,7 +385,6 @@ namespace Weapons
             PredictedProjectileController ppc = spawnedProjectile.GetComponent<PredictedProjectileController>();
 
             ppc.Initialize(lfd._bulletSpawnPosition, lfd._direction, lfd._projSpeed, lfd._maxDistance, lfd._damage, targetLayerMask);
-            ppc.ready = true;
             ServerManager.Spawn(spawnedProjectile, conn);
             GetComponent<AudioSource>().Play();
             // GameObject firedGunDecoration = Instantiate(gunExplosionTestPrefab, bulletSpawn.position, bulletSpawn.rotation);
@@ -402,17 +401,6 @@ namespace Weapons
             }
         }
 
-        [ServerRpc(RunLocally = true)]
-        public void UpdateTankMag(FirearmController fire)
-        {
-            fire.maxMagazineCount++;
-        }
-
-        [ServerRpc(RunLocally = true)]
-        public void UpdateTankDamage(FirearmController fire, float amount)
-        {
-            fire.damage += amount;
-        }
 
         public override void OnStartClient()
         {
@@ -513,11 +501,6 @@ namespace Weapons
             tank_barrel_animator.SetTrigger("gun");
             GameObject firedGunDecoration = Instantiate(gunExplosionTestPrefab, bulletSpawn.position, bulletSpawn.rotation);
 
-        }
-
-        public void ActivateAssaultAbility()
-        {
-            throw new NotImplementedException();
         }
 
 
