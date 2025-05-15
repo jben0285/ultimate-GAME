@@ -2169,7 +2169,7 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 6338806279402370395}
   _networkObjectCache: {fileID: 6338806279402370395}
   _playerType: 0
-  _inputActionAsset: {fileID: -944628639613478452, guid: 1be11cb0340e86c4cbcc93c4a1b8932b, type: 3}
+  _inputActionAsset: {fileID: -944628639613478452, guid: f0f4d3a5ff634144daff668fafbccb29, type: 3}
   _moveForce: 30
   _jumpForce: 12
   _abilityForce: 12
@@ -2195,6 +2195,7 @@ MonoBehaviour:
   _sprintStamina: 0
   _sprintStaminaDrainPerTick: 2
   _sprintStaminaRegenPerTick: 1
+  _maxJumps: 2
 --- !u!1 &8640994152749110795
 GameObject:
   m_ObjectHideFlags: 0

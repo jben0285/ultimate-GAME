@@ -8,6 +8,8 @@ using UnityEngine.InputSystem;
 using Bootstrap;
 using Weapons;
 using FishNet.Object.Synchronizing;
+using Microsoft.Unity.VisualStudio.Editor;
+using TMPro;
 namespace Player
 {
     public class BazigPlayerMotor : NetworkBehaviour
@@ -378,7 +380,26 @@ namespace Player
                 abilityCoolDownCounter = 0;  // reset
                 ActivateAbility(_playerType);
             }
+            
         }
+
+        public TextMeshProUGUI abilityCooldownText;
+        private void UpdateCooldownUI(){
+            if(_abilityActive)
+            {
+                abilityCooldownText.text = "Active";
+            }
+            else if(abilityCoolDownCounter < _abilityCooldownResetValue)
+            {
+                float timeRemaining = (_abilityCooldownResetValue - abilityCoolDownCounter) / Application.targetFrameRate;
+                    abilityCooldownText.text = Mathf.CeilToInt(timeRemaining).ToString();
+            }
+            else
+            {
+                abilityCooldownText.text = "Ready";
+            }
+        }
+        
 
         public override void CreateReconcile()
         {
@@ -425,6 +446,7 @@ namespace Player
                 Debug.LogWarning("Unknown player type during deactivation");
                 break;
         }
+        
         }
         private void ActivateAbility(PlayerType playerType)
         {
@@ -459,6 +481,7 @@ namespace Player
                     Debug.LogWarning("Unknown player type");
                     break;
             }
+            
         }
 
         #region Camera Look (Client-Only)
@@ -466,6 +489,7 @@ namespace Player
         {
             if (!IsOwner) return;
             HandleMouseLook();
+            UpdateCooldownUI();
         }
 
         private void HandleMouseLook()
