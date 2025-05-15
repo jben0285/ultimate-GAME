@@ -48,6 +48,9 @@ namespace Weapons
 
         public GameObject explosionParticlePrefab;
 
+        [Header("Weapon Spread")]
+        public float spread = 1.0f;
+
         [Header("Assign In Inspector")]
        // [SerializeField] private PlayerAudioController pac;
         [SerializeField] private Rigidbody playerRB;
@@ -316,7 +319,7 @@ namespace Weapons
             //do not call playerfire if client is host. This is because it does not need to do local stuff if
             //you are the server
 
-            float spreadFactor = Mathf.Lerp(0.3f, 3f, Mathf.Clamp01(.2f));
+            float spreadFactor = this.spread;
 
             float horizontalSpread = UnityEngine.Random.Range(-spreadFactor, spreadFactor);
             float verticalSpread = UnityEngine.Random.Range(-spreadFactor, spreadFactor);
