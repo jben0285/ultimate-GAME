@@ -90,6 +90,7 @@ namespace Player
 
         public void ShowRespawnMenu()
         {
+            Debug.LogError("SHOW RESPAWN MENU");
             RespawnText.text = "You were killed by: " + KilledBy;
             RespawnMenu.SetActive(true);
             dead = false;
