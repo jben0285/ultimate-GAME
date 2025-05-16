@@ -102,14 +102,16 @@ namespace Player {
         {
             if(!IsServerStarted)
             return;
+            if(Alive.Value)
+            {
+                return;
+            }
             _health.Value -= damage;
             if(_health.Value <= 0)
-            {
-                ownerHealth.CMM.KilledBy = shotBy;
-                ownerHealth.CMM.ShowRespawnMenu();
-                ownerHealth.CMM.dead = true;
-                ownerHealth.BPM.enabled = false;
-            }
+            ownerHealth.CMM.KilledBy = shotBy;
+            ownerHealth.CMM.ShowRespawnMenu();
+            ownerHealth.CMM.dead = true;
+            ownerHealth.BPM.enabled = false;
             TakeDamageObservers(ownerHealth, damage);
         }
         
