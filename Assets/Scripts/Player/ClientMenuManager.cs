@@ -50,10 +50,6 @@ namespace Player
             {
                 HideMenu_Click();
             }
-            if(_health != null)
-            {
-                _health.CMM = this;
-            }
         }
 
         private void ShowMenu()
@@ -107,6 +103,24 @@ namespace Player
         public void ToggleScope(bool toggle)
         {
             _scopeImage.SetActive(toggle);
+        }
+
+        // Call this when _health is assigned or changes
+        public void OnHealthChanged(PlayerHealth newHealth)
+        {
+            _health = newHealth;
+            if (_health != null)
+            {
+                _health.CMM = this;
+            }
+        }
+
+        // Call this to show damage on the HUD with a given intensity
+        public void ShowDamage(float intensity)
+        {
+            // TODO: Implement your HUD damage feedback logic here
+            Debug.Log($"ShowDamage called with intensity: {intensity}");
+            // Example: flash a red overlay, shake camera, etc.
         }
     }
 }

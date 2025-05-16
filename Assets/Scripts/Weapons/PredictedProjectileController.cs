@@ -112,7 +112,8 @@ namespace Weapons {
                     if(!alreadyHit)
                     {
                         alreadyHit = true;
-                        health.DealDamage(health, lfd.damage, Steamworks.SteamFriends.GetPersonaName());
+                        health.DealDamage(lfd.damage);
+                        health.GetComponent<NetworkObject>().LocalConnection.FirstObject.GetComponent<Player.ClientMenuManager>().KilledBy = Steamworks.SteamFriends.GetPersonaName();
                     }
                 }
 
