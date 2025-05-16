@@ -46,6 +46,7 @@ namespace Player
             // Only *this* player shows the damage HUD
             if (IsOwner)
             {
+                CMM = LocalConnection.FirstObject.GetComponent<ClientMenuManager>();
                 // Numeric & overlay
                 ShowHealth(curr);
                 float intensity = 1f - (curr / StartingHealth);

@@ -567,6 +567,7 @@ namespace Player
         private bool _isAiming = false;
         private void HandleAimToggle()
         {
+            CMM = LocalConnection.FirstObject.GetComponent<ClientMenuManager>();
             // Toggle on button press (not hold)
             if (_aimAction.WasPressedThisFrame())
             {
