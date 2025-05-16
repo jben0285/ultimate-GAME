@@ -18,6 +18,8 @@ namespace Player
 
         public bool dead;
 
+
+        
         //public PlayerFireController fireCont;
        // PlayerFireController.FireState prevState;
         [SerializeField] Button ResumeButton, LeaveButton, RespawnButton;

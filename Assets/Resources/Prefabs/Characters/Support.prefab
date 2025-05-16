@@ -313,9 +313,9 @@ MonoBehaviour:
   _weaponName: Rifle
   fireState: 1
   fireDelayCounter: 0
-  fireCounterReset: 75
+  fireCounterReset: 150
   cycleDelayCounter: 9
-  cycleCounterReset: 999
+  cycleCounterReset: 8
   startedReloading: 0
   magazineCount: 30
   maxMagazineCount: 30
