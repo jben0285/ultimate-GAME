@@ -47,6 +47,8 @@ namespace Weapons {
         public LiveFireData lfd;
         public LayerMask collisionMask;
 
+        private bool alreadyHit = false;
+
         /// <summary>
         /// One-time initialization of projectile state.
         /// Call this immediately after spawning on the server.
@@ -106,7 +108,13 @@ namespace Weapons {
 
                 var health = hit.collider.GetComponentInParent<Player.PlayerHealth>();
                 if (health != null)
-                    health.DealDamage(health, lfd.damage, Steamworks.SteamFriends.GetPersonaName());
+                {
+                    if(!alreadyHit)
+                    {
+                        alreadyHit = true;
+                        health.DealDamage(health, lfd.damage, Steamworks.SteamFriends.GetPersonaName());
+                    }
+                }
 
                 // Destroy across network
                 if (IsServerStarted)
