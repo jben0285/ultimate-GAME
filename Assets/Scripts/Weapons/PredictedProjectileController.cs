@@ -112,7 +112,7 @@ namespace Weapons {
                     if(!alreadyHit)
                     {
                         alreadyHit = true;
-                        health.DealDamage(lfd.damage, Steamworks.SteamFriends.GetPersonaName());
+                        health.DealDamage(health, lfd.damage, Steamworks.SteamFriends.GetPersonaName());
                     }
                 }
 

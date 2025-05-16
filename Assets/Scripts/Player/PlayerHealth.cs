@@ -99,32 +99,32 @@ namespace Player
         }
 
         // --- Called by server-side projectile on hit ---
-        public void DealDamage(float damage, string shotBy)
+        public void DealDamage(PlayerHealth health, float damage, string shotBy)
         {
             if (!IsServerStarted) return;
-            TakeDamage(damage, shotBy);
+            TakeDamage(health, damage, shotBy);
         }
 
-        private void TakeDamage(float damage, string shotBy)
+        private void TakeDamage(PlayerHealth health, float damage, string shotBy)
         {
-            if (!Alive.Value)
+            if (!health.Alive.Value)
                 return; // can't damage a dead player
 
-            Health.Value -= damage;
+            health.Health.Value -= damage;
 
             // Show blood/effects on all clients
-            TakeDamageObserversRpc(Health.Value, damage);
+            TakeDamageObserversRpc(health.Health.Value, damage);
 
-            if (Health.Value <= 0f)
+            if (health.Health.Value <= 0f)
             {
                 // Mark dead and decrement a life
-                Alive.Value          = false;
-                LivesRemaining.Value = Mathf.Max(0, LivesRemaining.Value - 1);
+                health.Alive.Value          = false;
+                health.LivesRemaining.Value = Mathf.Max(0, health.LivesRemaining.Value - 1);
 
                 // Show respawn UI locally
-                CMM.KilledBy      = shotBy;
-                CMM.ShowRespawnMenu();
-                CMM.dead          = true;
+                health.CMM.KilledBy      = shotBy;
+                health.CMM.ShowRespawnMenu();
+                health.CMM.dead          = true;
             }
         }
 
