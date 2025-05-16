@@ -25,7 +25,7 @@ namespace Player
         public override void OnStartNetwork()
         {
             base.OnStartNetwork();
-            if (IsServer)
+            if (IsServerStarted)
             {
                 Health.Value         = StartingHealth;
                 LivesRemaining.Value = StartingLives;
@@ -46,7 +46,7 @@ namespace Player
             // Always show HUD
             ShowDamageHUD();
             ShowHealth(current);
-
+            CMM = LocalConnection.FirstObject.GetComponent<ClientMenuManager>();
             // Show damage intensity on HUD
             if (CMM != null && StartingHealth > 0f)
             {
@@ -99,7 +99,6 @@ namespace Player
             // Restore state
             Health.Value = StartingHealth;
             Alive.Value = true;
-            LivesRemaining.Value--;
             // Notify clients
             RespawnObserversRpc(Health.Value, LivesRemaining.Value);
         }
@@ -108,6 +107,8 @@ namespace Player
         private void RespawnObserversRpc(float newHealth, int newLives)
         {
             Debug.LogWarning($"{SteamFriends.GetPersonaName()} has respawned with {newHealth} HP and {newLives} lives left.");
+            if (CMM != null)
+                CMM.ShowDamage(0f);
         }
 
         // Called by server on hit
