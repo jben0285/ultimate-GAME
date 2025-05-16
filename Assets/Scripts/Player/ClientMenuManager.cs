@@ -101,7 +101,7 @@ namespace Player
             RespawnMenu.SetActive(false);
             dead = false;
             //looks confusing
-            _health.RespawnServer(_health);
+            _health.RespawnServerRpc();
         }
 
         public void ToggleScope(bool toggle)
