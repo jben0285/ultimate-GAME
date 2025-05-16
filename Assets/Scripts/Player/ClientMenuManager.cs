@@ -19,7 +19,7 @@ namespace Player
         public bool dead;
 
 
-        
+        [SerializeField] private Image damageOverlay;
         //public PlayerFireController fireCont;
        // PlayerFireController.FireState prevState;
         [SerializeField] Button ResumeButton, LeaveButton, RespawnButton;
@@ -37,6 +37,7 @@ namespace Player
         void Start()
         {
             _scopeImage.SetActive(false);
+            ShowDamage(0);
         }
 
         // Update is called once per frame
@@ -96,6 +97,7 @@ namespace Player
         {
             RespawnMenu.SetActive(false);
             dead = false;
+            ShowDamage(0);
             //looks confusing
             _health.RespawnServerRpc();
         }
@@ -121,6 +123,11 @@ namespace Player
             // TODO: Implement your HUD damage feedback logic here
             Debug.Log($"ShowDamage called with intensity: {intensity}");
             // Example: flash a red overlay, shake camera, etc.
+        // Assuming you have a damage overlay GameObject or UI element
+            // Adjust the alpha or intensity of the damage overlay based on the intensity parameter
+            Color overlayColor = damageOverlay.color;
+            overlayColor.a = Mathf.Clamp01(intensity); // Ensure alpha is between 0 and 1
+            damageOverlay.color = overlayColor;
         }
     }
 }

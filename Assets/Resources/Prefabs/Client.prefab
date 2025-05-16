@@ -646,16 +646,16 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1314875950543608931}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 333.30322}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 9149240759374012376}
+  m_Father: {fileID: 5126403107584546718}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -104.55505, y: -199.54626}
-  m_SizeDelta: {x: 1855.21, y: 1440}
+  m_AnchoredPosition: {x: 77, y: -21}
+  m_SizeDelta: {x: 3042.6, y: 2395.313}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2561971634123496374
 CanvasRenderer:
@@ -679,7 +679,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -727,7 +727,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3054879053411387542}
   - {fileID: 5126403107584546718}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -800,6 +799,7 @@ MonoBehaviour:
   _health: {fileID: 0}
   InMenu: 0
   dead: 0
+  damageOverlay: {fileID: 1912854925951070740}
   ResumeButton: {fileID: 2074133570077730327}
   LeaveButton: {fileID: 6529137168594862027}
   RespawnButton: {fileID: 3443088819011142998}
@@ -972,6 +972,7 @@ RectTransform:
   - {fileID: 7826082185050393445}
   - {fileID: 7439279594274377697}
   - {fileID: 2662001889419762801}
+  - {fileID: 3054879053411387542}
   m_Father: {fileID: 9149240759374012376}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1162,7 +1163,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2057594192018942794}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 89577180897646237}
+        m_TargetAssemblyTypeName: Player.ClientMenuManager, Assembly-CSharp
+        m_MethodName: Respawn_Click
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &3764522381595779876
 GameObject:
   m_ObjectHideFlags: 0

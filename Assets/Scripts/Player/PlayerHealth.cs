@@ -99,6 +99,7 @@ namespace Player
             // Restore state
             Health.Value = StartingHealth;
             Alive.Value = true;
+            LivesRemaining.Value--;
             // Notify clients
             RespawnObserversRpc(Health.Value, LivesRemaining.Value);
         }
