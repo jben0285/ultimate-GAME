@@ -237,9 +237,12 @@ namespace Player
 
         private void TimeManager_OnTick()
         {
-            if(CMM.dead)
+            if(CMM != null)
             {
-                return;
+                if(CMM.dead)
+                {
+                    return;
+                }
             }
             // Gather and send input data each tick
             MovementData md = CreateReplicateData();

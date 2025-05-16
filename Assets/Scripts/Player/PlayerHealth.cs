@@ -112,7 +112,6 @@ namespace Player {
             ownerHealth.CMM.KilledBy = shotBy;
             ownerHealth.CMM.ShowRespawnMenu();
             ownerHealth.CMM.dead = true;
-            // ownerHealth.BPM.enabled = false;
             }
             TakeDamageObservers(ownerHealth, damage);
         }
