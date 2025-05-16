@@ -7,25 +7,25 @@ namespace Player
 {
     public class PlayerHealth : NetworkBehaviour
     {
-        // --- SyncVars for health, alive state, and lives ---
+        // SyncVars
         public readonly SyncVar<float> Health         = new();
         public readonly SyncVar<bool>  Alive          = new();
         public readonly SyncVar<int>   LivesRemaining = new();
 
-        [Header("Initial Settings")]
-        [SerializeField] private float StartingHealth = 100f;
-        [SerializeField] private int   StartingLives  = 3;
+        [Header("Settings")]
+        [SerializeField] float StartingHealth = 100f;
+        [SerializeField] int   StartingLives  = 3;
 
-        [Header("References")]
+        [Header("Refs")]
         public Transform spawnPoint;
         public ClientMenuManager CMM;
-        [SerializeField] private BazigPlayerMotor BPM;
-        [SerializeField] private GameObject bloodEffect;
+        [SerializeField] BazigPlayerMotor BPM;
+        [SerializeField] GameObject bloodEffect;
 
         public override void OnStartNetwork()
         {
             base.OnStartNetwork();
-            if (IsServerStarted)
+            if (IsServer)
             {
                 Health.Value         = StartingHealth;
                 LivesRemaining.Value = StartingLives;
@@ -36,110 +36,91 @@ namespace Player
         public override void OnStartClient()
         {
             base.OnStartClient();
-            Health.OnChange += OnHealthChanged;
+            Health.OnChange         += OnHealthChanged;
             LivesRemaining.OnChange += OnLivesChanged;
-            Alive.OnChange += OnAliveChanged;
+            Alive.OnChange          += OnAliveChanged;
         }
 
-        private void OnHealthChanged(float previous, float current, bool asServer)
+        private void OnHealthChanged(float prev, float curr, bool asServer)
         {
-            // Always show HUD
-            ShowDamageHUD();
-            ShowHealth(current);
-            CMM = LocalConnection.FirstObject.GetComponent<ClientMenuManager>();
-            // Show damage intensity on HUD
-            if (CMM != null && StartingHealth > 0f)
+            // Only *this* player shows the damage HUD
+            if (IsOwner)
             {
-                float intensity = 1f - (current / StartingHealth);
-                CMM.ShowDamage(intensity);
-            }
+                // Numeric & overlay
+                ShowHealth(curr);
+                float intensity = 1f - (curr / StartingHealth);
+                CMM?.ShowDamage(intensity);
 
-            // Handle death when health falls to zero
-            if (previous > 0f && current <= 0f)
-            {
-                // Mark dead and decrement lives
-                Alive.Value = false;
-                LivesRemaining.Value = Mathf.Max(0, LivesRemaining.Value - 1);
+                // If we just died:
+                if (prev > 0f && curr <= 0f)
+                {
+                    Alive.Value = false;
+                    LivesRemaining.Value = Mathf.Max(0, LivesRemaining.Value - 1);
 
-                // Notify local UI
-                CMM.KilledBy = SteamFriends.GetPersonaName();
-                CMM.ShowRespawnMenu();
-                CMM.dead = true;
-
-                // Optionally disable movement
-                if (BPM != null)
+                    CMM.KilledBy = SteamFriends.GetPersonaName();
+                    CMM.ShowRespawnMenu();
+                    CMM.dead = true;
                     BPM.enabled = false;
-
-                // Move to spawn point after delay or on respawn RPC
+                }
             }
         }
 
-        private void OnLivesChanged(int previous, int current, bool asServer)
+        private void OnLivesChanged(int prev, int curr, bool asServer)
         {
-            Debug.Log($"Lives changed from {previous} to {current}");
+            Debug.Log($"Lives: {prev}→{curr}");
         }
 
-        private void OnAliveChanged(bool previous, bool current, bool asServer)
+        private void OnAliveChanged(bool prev, bool curr, bool asServer)
         {
-            if (current)
+            // When coming back to life, respawn position & movement
+            if (curr && IsOwner)
             {
-                // Player just respawned: reposition, restore movement
-                if (spawnPoint != null && IsClient)
+                if (spawnPoint != null)
                     transform.root.position = spawnPoint.position;
-                if (BPM != null)
-                    BPM.enabled = true;
+                BPM.enabled = true;
             }
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void RespawnServerRpc()
-        {
-            if (LivesRemaining.Value < 1)
-                return;
-            // Restore state
-            Health.Value = StartingHealth;
-            Alive.Value = true;
-            // Notify clients
-            RespawnObserversRpc(Health.Value, LivesRemaining.Value);
-        }
-
-        [ObserversRpc]
-        private void RespawnObserversRpc(float newHealth, int newLives)
-        {
-            Debug.LogWarning($"{SteamFriends.GetPersonaName()} has respawned with {newHealth} HP and {newLives} lives left.");
-            if (CMM != null)
-                CMM.ShowDamage(0f);
-        }
-
-        // Called by server on hit
+        // Called on server when a projectile hits
         public void DealDamage(float damage)
         {
-            if (!IsServer || !Alive.Value)
-                return;
+            if (!IsServer || !Alive.Value) return;
             Health.Value -= damage;
-            // VFX
+            // Blood effect on owner only
             TakeDamageObserversRpc(Health.Value, damage);
         }
 
         [ObserversRpc(RunLocally = true)]
         private void TakeDamageObserversRpc(float newHealth, float damage)
         {
-            Debug.Log($"[Damage] New health: {newHealth} (took {damage})");
-            Vector3 offset = new Vector3(
-                Random.Range(-0.5f, 0.5f),
-                Random.Range(-0.5f, 0.5f),
-                Random.Range(-0.5f, 0.5f)
-            );
-            GameObject blood = Instantiate(bloodEffect, transform.position + offset, Quaternion.identity);
-            Destroy(blood, 2f);
+            if (!IsOwner) return;
+            Debug.Log($"[Damage] HP: {newHealth} (−{damage})");
+            Vector3 off = Random.insideUnitSphere * 0.5f;
+            var b = Instantiate(bloodEffect, transform.position + off, Quaternion.identity);
+            Destroy(b, 2f);
         }
 
-        private void ShowDamageHUD() { /* TODO */ }
-
-        [ObserversRpc(RunLocally = true)]
-        private void ShowHealth(float health)
+        [ServerRpc(RequireOwnership = false)]
+        public void RespawnServerRpc()
         {
-            Debug.LogWarning($"[Health HUD] {gameObject.name}: {health} HP");
+            if (LivesRemaining.Value < 1) return;
+            Health.Value = StartingHealth;
+            Alive.Value  = true;
+            RespawnObserversRpc(StartingHealth, LivesRemaining.Value);
+        }
+
+        [ObserversRpc]
+        private void RespawnObserversRpc(float hp, int lives)
+        {
+            if (!IsOwner) return;
+            CMM.ShowDamage(0f);
+            Debug.Log($"Respawned with {hp} HP, {lives} lives.");
+        }
+
+        private void ShowHealth(float hp)
+        {
+            if (!IsOwner) return;
+            Debug.Log($"[HUD] {gameObject.name} HP = {hp}");
         }
     }
 }
