@@ -317,7 +317,7 @@ MonoBehaviour:
   cycleDelayCounter: 0
   cycleCounterReset: 6
   startedReloading: 0
-  magazineCount: 18
+  magazineCount: 50
   maxMagazineCount: 50
   reserveCount: 9999599
   damage: 5

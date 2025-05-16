@@ -95,8 +95,6 @@ namespace Player {
         }
         public void DealDamage(PlayerHealth opponentHealth, float damage, string shotBy)
         {
-            if(!IsServerStarted)
-            return;
             TakeDamage(opponentHealth, damage, shotBy);
         }
 
