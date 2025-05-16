@@ -292,6 +292,7 @@ namespace Bootstrap
                 activePlayer.tag = "LocalPlayer";
                 activePlayer.layer = LayerMask.NameToLayer("LocalPlayerLayer");
                 ClientMenuManager CMM = activeClient.GetComponent<ClientMenuManager>();
+                CMM.BPM = activePlayer.GetComponent<BazigPlayerMotor>();
                 activePlayer.GetComponent<BazigPlayerMotor>().CMM = CMM;
                 CMM._health = activePlayer.GetComponent<PlayerHealth>();
                 if(!conn.IsHost)

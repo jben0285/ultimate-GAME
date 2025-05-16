@@ -30,6 +30,7 @@ namespace Player
         [SerializeField] GameObject RespawnMenu;
 
         public string KilledBy;
+        public BazigPlayerMotor BPM;
 
         private void Awake() => instance = this;
 
